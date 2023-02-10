@@ -7,9 +7,9 @@ interface LayoutProps {
 }
 export default function Layout({ children }: LayoutProps) {
 	return (
-		<div className="relative min-h-screen">
+		<div className="min-h-screen flex flex-col">
 			<Header />
-			<div className="my-20">{children}</div>
+			<div className="flex-1">{children}</div>
 			<Footer />
 		</div>
 	);
