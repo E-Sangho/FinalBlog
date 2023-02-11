@@ -6,13 +6,13 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-java";
 import "prismjs/components/prism-typescript";
+import ExclamationIcon from "./exclamationIcon";
 
 interface MarkdownRendererProps {
 	text: string;
 }
 
 export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
-	const sampleText = sample;
 	const renderer = new marked.Renderer();
 	renderer.heading = (text: string, level: number) => {
 		const escapedText = text.toLowerCase().replace(/[^\w]+/g, "-");
@@ -82,7 +82,7 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 			.join("\n")
 			.replace(/t|\\n/, "");
 		return `
-			<div class="codeBlock w-full rounded-lg overflow-hidden my-8">
+			<div class="codeBlock w-full rounded-lg overflow-hidden my-8 shadow-lg">
 				<div class="flex justify-between px-2 py-1 bg-lime-500 text-zinc-100">
 					<p>${language?.toUpperCase()}</p>
 				</div>
@@ -97,6 +97,118 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 				</pre>
 			</div>
 			`;
+	};
+	renderer.hr = () => {
+		return `
+			<hr class="border-dashed border-2 my-8">
+			</hr>
+		`;
+	};
+	renderer.strong = (text: string) => {
+		return `
+			<strong class="text-red-400">
+				${text}
+			</strong>
+		`;
+	};
+	renderer.list = (body: string, ordered: boolean, start: number) => {
+		if (ordered) {
+			return `
+				<ol class="list-decimal ml-4">
+					${body}
+				</ol>	
+			`;
+		}
+		return `
+			<ul class="list-disc ml-4">
+				${body}
+			</ul>	
+		`;
+	};
+	renderer.listitem = (text: string, tast: boolean, checked: boolean) => {
+		return `
+			<li class="">
+				${text}
+			</li>
+		`;
+	};
+	renderer.paragraph = (text: string) => {
+		return `
+			<p class="text-base">
+				${text}
+			</p>
+		`;
+	};
+	renderer.blockquote = (quote: string) => {
+		return `
+			<blockquote class="rounded-lg overflow-hidden shadow-lg border-l-8 border-purple-500 my-8">
+				<div class="flex items-center text-purple-500 bg-purple-100 py-1">
+						<div class="w-8 h-8 pb-1">
+							<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="100%"
+							height="100%"
+							viewBox="0 0 128 512"
+							fill="currentColor"
+						>
+							<path d="M72 64c0-17.7-14.3-32-32-32S8 46.3 8 64V320c0 17.7 14.3 32 32 32s32-14.3 32-32V64zM40 480a40 40 0 1 0 0-80 40 40 0 1 0 0 80z" />
+						</svg>
+					</div>
+					<div class="text-2xl align-bottom">
+						Remark	
+					</div>
+				</div>
+				<div class="py-8 px-4">
+					${quote}
+				</div>
+			</blockquote>
+		`;
+	};
+	renderer.codespan = (code: string) => {
+		return `
+			<code class="text-orange-500 bg-slate-100 rounded px-1">
+				${code}
+			</code>
+		`;
+	};
+	renderer.table = (header: string, body: string) => {
+		return `
+			<table class="w-full my-8 shadow-lg rounded-md overflow-hidden">
+				<thead class="bg-red-500 py-4 text-lg text-gray-100">
+					${header}
+				</thead>
+				<tbody class="even:bg-red-100">
+					${body}
+				</tbody>
+			</table>
+		`;
+	};
+	renderer.tablerow = (content: string) => {
+		return `
+			<tr class="even:bg-red-200">
+				${content}
+			</tr>
+		`;
+	};
+	renderer.tablecell = (content: string, flags: object) => {
+		return `
+			<th class="px-2 py-2">
+				${content}
+			</th>
+		`;
+	};
+	renderer.link = (href: string, title: string, text: string) => {
+		return `
+			<a href="${href}" class="text-indigo-500">
+				${text}
+			</a>
+		`;
+	};
+	renderer.image = (href: string, title: string, text: string) => {
+		return `
+			<image src="${href}" class="mx-auto">
+			</image>
+		`;
 	};
 	marked.setOptions({
 		breaks: true,

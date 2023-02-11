@@ -75,16 +75,29 @@ export default function writePost() {
 	return (
 		<Layout>
 			<div className="w-full my-8">
-				<div className="w-full flex px-8 gap-8">
-					{/* We will write our contents here.*/}
-					<textarea
-						onKeyDown={enableTabKey}
-						onChange={textareasChange}
-						className="w-full text-blue-500 border-2 border-black rounded-2xl p-4"
-						rows={35}
-					></textarea>
-					{/* We will render our contents here. */}
-					<MarkdownRenderer text={text} />
+				<div className="w-full flex flex-col px-8 gap-6">
+					<div className="border-2 flex rounded-md px-4 py-2 w-full">
+						<label htmlFor="postTitle" className="">
+							제목:
+						</label>
+						<input
+							id="postTitle"
+							className="flex-1 ml-2 outline-none"
+							type="text"
+							placeholder="제목을 입력해주세요."
+						/>
+					</div>
+					<div className="flex gap-8">
+						{/* We will write our contents here.*/}
+						<textarea
+							onKeyDown={enableTabKey}
+							onChange={textareasChange}
+							className="w-full text-blue-500 border-2 border-black rounded-2xl p-4"
+							rows={35}
+						></textarea>
+						{/* We will render our contents here. */}
+						<MarkdownRenderer text={text} />
+					</div>
 				</div>
 			</div>
 		</Layout>
