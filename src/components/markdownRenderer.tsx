@@ -6,7 +6,6 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-java";
 import "prismjs/components/prism-typescript";
-import ExclamationIcon from "./exclamationIcon";
 
 interface MarkdownRendererProps {
 	text: string;
