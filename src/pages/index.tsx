@@ -1,7 +1,9 @@
+import Layout from "@/components/layout";
+
 export default function Home() {
 	return (
-		<div className="bg-red-500">
-			<h1 className="text-blue-500">it works</h1>
-		</div>
+		<Layout>
+			<div></div>
+		</Layout>
 	);
 }
