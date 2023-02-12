@@ -52,19 +52,19 @@ export default function writePost() {
 	useEffect(() => {
 		// save text on localStorage
 		localStorage.setItem("text", text);
-		// Create Code Copy button
-		const blocks = document.querySelectorAll(".codeBlock");
-		blocks.forEach((block) => {
-			if (navigator.clipboard) {
-				let button = document.createElement("button");
-				button.innerText = "Copy Code";
-				block.children[0].appendChild(button);
+		// // Create Code Copy button
+		// const blocks = document.querySelectorAll(".codeBlock");
+		// blocks.forEach((block) => {
+		// 	if (navigator.clipboard) {
+		// 		let button = document.createElement("button");
+		// 		button.innerText = "Copy Code";
+		// 		block.children[0].appendChild(button);
 
-				button.addEventListener("click", async () => {
-					await copyCode(block);
-				});
-			}
-		});
+		// 		button.addEventListener("click", async () => {
+		// 			await copyCode(block);
+		// 		});
+		// 	}
+		// });
 		// I don't know why but r tag is generated when code block is implemented.
 		// So delete them all.
 		const strangeR = document.querySelectorAll("r");

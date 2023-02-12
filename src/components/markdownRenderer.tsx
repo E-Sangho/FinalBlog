@@ -6,6 +6,7 @@ import "prismjs/components/prism-bash";
 import "prismjs/components/prism-javascript";
 import "prismjs/components/prism-java";
 import "prismjs/components/prism-typescript";
+import { useEffect } from "react";
 
 interface MarkdownRendererProps {
 	text: string;
@@ -224,6 +225,45 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 		const __html = marked(text);
 		return { __html };
 	};
+	// create "Copy Code" button at the codeblocks
+	const copyCode = async (dom: Element) => {
+		const code = dom.querySelector("code");
+		const codeLines: NodeListOf<HTMLElement> | undefined =
+			code?.querySelectorAll(".code-line");
+		// const text = code ? code.innerText : "";
+		let text = "";
+		codeLines?.forEach((codeLine) => {
+			text += codeLine.innerText;
+			text += "\n";
+		});
+		await navigator.clipboard.writeText(text);
+	};
+	useEffect(() => {
+		// Create Code Copy button
+		const blocks = document.querySelectorAll(".codeBlock");
+		blocks.forEach((block) => {
+			if (navigator.clipboard) {
+				let button = document.createElement("button");
+				button.innerText = "Copy Code";
+				block.children[0].appendChild(button);
+
+				button.addEventListener("click", async () => {
+					await copyCode(block);
+				});
+			}
+		}, []);
+		// I don't know why but r tag is generated when code block is implemented.
+		// So delete them all.
+		const strangeR = document.querySelectorAll("r");
+		strangeR.forEach((r) => r.remove());
+		// Also class isn't applied to first line of code block.
+		// I can't find out what is problem.
+		// Thus i just add code to append class.
+		const tbodys = document.querySelectorAll("tbody");
+		tbodys.forEach((tbody) => {
+			tbody.children[0].classList.add("hover:bg-blue-200");
+		});
+	}, []);
 	return (
 		<div className="w-full border-2 border-black rounded-2xl p-4 font-mabinogi">
 			<div dangerouslySetInnerHTML={renderText(text)}></div>
