@@ -4,7 +4,14 @@ import { useEffect } from "react";
 import { sample } from "../../util/mdSample";
 
 export default function ReadPost() {
-	const textSample = sample;
+	const textSample = `\`\`\`javascript
+	
+	let a = 0;
+	let b = 0;
+	for (int i = 0; i < 10; ++i) {
+		console.log("hello");
+	}
+	\`\`\``;
 	const title = "Post Title";
 	const postImage =
 		"https://w.namu.la/s/95f3898eb4996f6ba5a3930b212b295da56e062e9427da87331a510d3d868bd81f24d10d242ca0d93f4ad94053b9321549cb4590ea815a8d39ba92cde1a7da445f694cd13513124c3f6d61e456014a1e0d9a3b6cbe7a28b94c757fbd60bce446";

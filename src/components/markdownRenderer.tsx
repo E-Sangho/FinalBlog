@@ -46,45 +46,37 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 			</a>
 		`;
 	};
-	renderer.code = (
-		code: string,
-		language: string | undefined,
-		isEscaped: boolean
-	) => {
+	renderer.code = (code: string, language: string | undefined) => {
 		let langClass = `language-unknown`;
 		if (language && renderer?.options?.highlight) {
 			code = renderer.options.highlight(code, language as string) as string;
 			langClass = `language-${language}`;
 		}
 		const line = code
-			.replace("	", "\t")
 			.split("\n")
 			.map((item, index) => {
 				if (index % 2 === 1) {
-					return `
-						<tr class="bg-slate-100 hover:bg-blue-200">
+					return `<tr class="bg-slate-100 hover:bg-blue-200">
 							<td class="inline pl-2 text-right border-r-2 pr-2 border-r-slate-300 select-none">${
 								index + 1
 							}</td>
 							<td class="pl-2 w-full code-line">${item}</td>
-						</tr>	
-					`;
+						</tr>`;
 				}
-				return `
-					<tr class="hover:bg-blue-200">
+				return `<tr class="hover:bg-blue-200">
 						<td class="inline pl-2 text-right border-r-2 pr-2 border-r-slate-300 select-none">${
 							index + 1
 						}</td>
 						<td class="pl-2 w-full code-line">${item}</td>
-					</tr>	
-				`;
+					</tr>`;
 			})
 			.join("\n")
-			.replace(/t|\\n/, "");
+			.replace(/\t|\\n/, "");
 		return `
 			<div class="codeBlock w-full rounded-lg overflow-hidden my-8 shadow-lg">
 				<div class="flex justify-between px-2 py-1 bg-lime-500 text-zinc-100">
 					<p>${language?.toUpperCase()}</p>
+					<button class="copyButton">Copy code</button>
 				</div>
 				<pre class="w-full h-full -mt-6 -mb-12">
 					<code class="w-full h-full ${langClass}">
@@ -226,8 +218,17 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 		return { __html };
 	};
 	// create "Copy Code" button at the codeblocks
+	useEffect(() => {
+		let copyButtons = document.querySelectorAll(".copyButton");
+		copyButtons.forEach((copyButton) => {
+			copyButton.addEventListener(
+				"click",
+				async () => await copyCode(copyButton)
+			);
+		});
+	});
 	const copyCode = async (dom: Element) => {
-		const code = dom.querySelector("code");
+		const code = dom.parentElement?.parentElement?.querySelector("code");
 		const codeLines: NodeListOf<HTMLElement> | undefined =
 			code?.querySelectorAll(".code-line");
 		// const text = code ? code.innerText : "";
@@ -238,32 +239,6 @@ export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
 		});
 		await navigator.clipboard.writeText(text);
 	};
-	useEffect(() => {
-		// Create Code Copy button
-		const blocks = document.querySelectorAll(".codeBlock");
-		blocks.forEach((block) => {
-			if (navigator.clipboard) {
-				let button = document.createElement("button");
-				button.innerText = "Copy Code";
-				block.children[0].appendChild(button);
-
-				button.addEventListener("click", async () => {
-					await copyCode(block);
-				});
-			}
-		}, []);
-		// I don't know why but r tag is generated when code block is implemented.
-		// So delete them all.
-		const strangeR = document.querySelectorAll("r");
-		strangeR.forEach((r) => r.remove());
-		// Also class isn't applied to first line of code block.
-		// I can't find out what is problem.
-		// Thus i just add code to append class.
-		const tbodys = document.querySelectorAll("tbody");
-		tbodys.forEach((tbody) => {
-			tbody.children[0].classList.add("hover:bg-blue-200");
-		});
-	}, []);
 	return (
 		<div className="w-full border-2 border-black rounded-2xl p-4 font-mabinogi">
 			<div dangerouslySetInnerHTML={renderText(text)}></div>
