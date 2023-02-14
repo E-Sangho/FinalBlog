@@ -9,27 +9,27 @@ import {
 } from "react";
 import { sample } from "@/util/mdSample";
 import MarkdownRenderer from "@/components/markdownRenderer";
+import { useForm } from "react-hook-form";
+import useMutation from "@/libs/client/useMutation";
 
+interface FormValue {
+	title: string;
+	category: string;
+	tags?: string;
+	draft: boolean;
+	uploadImage: string;
+	contents: string;
+}
 export default function writePost() {
-	const [text, setText] = useState<string>("");
+	const { register, watch, setValue, handleSubmit } = useForm<FormValue>({
+		defaultValues: {
+			contents: "",
+		},
+	});
+	const [enter, { loading, data, error }] = useMutation("/api/posts");
 	const [images, setImages] = useState<string[]>([]);
 	const sampleText = sample;
-	const textareasChange: ChangeEventHandler<HTMLTextAreaElement> = (event) => {
-		setText(event.target.value);
-	};
-	// create "Copy Code" button at the codeblocks
-	const copyCode = async (dom: Element) => {
-		const code = dom.querySelector("code");
-		const codeLines: NodeListOf<HTMLElement> | undefined =
-			code?.querySelectorAll(".code-line");
-		// const text = code ? code.innerText : "";
-		let text = "";
-		codeLines?.forEach((codeLine) => {
-			text += codeLine.innerText;
-			text += "\n";
-		});
-		await navigator.clipboard.writeText(text);
-	};
+	let contents = watch("contents");
 	// image drop event
 	const imageDrop: DragEventHandler<HTMLTextAreaElement> = (event) => {
 		event.preventDefault();
@@ -37,21 +37,21 @@ export default function writePost() {
 		let files = data.files;
 		const url = URL.createObjectURL(files[0]);
 		const image = `\n<img src="${url}" />`;
-		setText((text) => text + image);
+		setValue("contents", contents + image);
 		setImages((prev) => [...prev, url]);
 	};
 	useEffect(() => {
 		// When page loaded get text from localStorage and apply it.
 		const savedText = localStorage.getItem("text");
 		if (savedText) {
-			setText(savedText);
+			setValue("contents", savedText);
 		} else {
-			setText(sampleText);
+			setValue("contents", sampleText);
 		}
 	}, []);
 	useEffect(() => {
 		// save text on localStorage
-		localStorage.setItem("text", text);
+		localStorage.setItem("text", contents);
 		// I don't know why but r tag is generated when code block is implemented.
 		// So delete them all.
 		const strangeR = document.querySelectorAll("r");
@@ -63,7 +63,7 @@ export default function writePost() {
 		tbodys.forEach((tbody) => {
 			tbody.children[0].classList.add("hover:bg-blue-200");
 		});
-	}, [text]);
+	}, [contents]);
 	// make textarea can recognize tab key
 	const enableTabKey = (event: KeyboardEvent<HTMLTextAreaElement>) => {
 		if (event.key === "Tab") {
@@ -78,12 +78,12 @@ export default function writePost() {
 		}
 	};
 	// 포스트 작성 버튼 눌렀을 때 작동하는 handler
-	const postSubmit: MouseEventHandler<HTMLInputElement> = (event) => {
-		event.preventDefault();
+	const onValid = (data: FormValue) => {
+		enter(data);
 	};
 	return (
 		<Layout>
-			<div className="w-full my-8">
+			<form onSubmit={handleSubmit(onValid)} className="w-full my-8">
 				<div className="w-full flex flex-col px-8 gap-6">
 					<div className="border-2 flex rounded-md px-4 py-2 w-full">
 						<label htmlFor="postTitle" className="">
@@ -94,19 +94,23 @@ export default function writePost() {
 							className="flex-1 ml-2 outline-none"
 							type="text"
 							placeholder="제목을 입력해주세요."
+							{...register("title", { required: true })}
 						/>
 					</div>
 					<div className="flex justify-between">
 						<div className="flex gap-8 items-center">
 							<div className="border-2 rounded-md px-2 py-2">
-								<select className="outline-none">
+								<select
+									className="outline-none"
+									{...register("category", { required: true })}
+								>
 									<option value="Java">Java</option>
 									<option value="JavaScript">JavaScript</option>
 								</select>
 							</div>
 							<div className="border-2 rounded-md px-2 py-2">
 								<label htmlFor="drafy">비공개 : </label>
-								<input id="draft" type="checkbox" />
+								<input id="draft" type="checkbox" {...register("draft")} />
 							</div>
 							<div className="border-2 flex rounded-md px-4 py-2">
 								<label htmlFor="tag">태그: </label>
@@ -115,6 +119,7 @@ export default function writePost() {
 									type="text"
 									placeholder="태그를 입력해주세요"
 									className="outline-none pl-2"
+									{...register("tags")}
 								/>
 							</div>
 							<div className="w-8 h-8">
@@ -135,32 +140,29 @@ export default function writePost() {
 								type="file"
 								accept="image/*"
 								className="w-0 h-0"
+								{...register("uploadImage")}
 							/>
 						</div>
 						<div>
-							<input
-								type="button"
-								className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-								value="포스트 작성"
-								onClick={postSubmit}
-							></input>
+							<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
+								포스트 작성
+							</button>
 						</div>
 					</div>
 					<div className="flex gap-8">
 						{/* We will write our contents here.*/}
 						<textarea
 							onKeyDown={enableTabKey}
-							onChange={textareasChange}
 							className="w-full text-blue-500 border-2 border-black rounded-2xl p-4"
 							rows={35}
 							onDrop={imageDrop}
-							value={text}
+							{...register("contents", { required: true })}
 						></textarea>
 						{/* We will render our contents here. */}
-						<MarkdownRenderer text={text} />
+						<MarkdownRenderer text={contents} />
 					</div>
 				</div>
-			</div>
+			</form>
 		</Layout>
 	);
 }
