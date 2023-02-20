@@ -1,10 +1,21 @@
-interface LoginForm {
+import useMutation from "@/libs/client/useMutation";
+import { useForm } from "react-hook-form";
+
+interface LoginData {
 	id: string;
+	password: string;
 }
+
 export default function Login() {
+	const [enter, { loading, data, error }] = useMutation("api/users/login");
+	const { register, handleSubmit } = useForm<LoginData>();
+	const onValid = (data: LoginData) => {
+		if (loading) return;
+		enter(data);
+	};
 	return (
 		<div className="w-full h-screen">
-			<div className="w-96 mx-auto text-center mt-32 mb-8 text-2xl">Login</div>
+			<div className="w-96 mx-auto text-center mt-32 mb-8 text-2xl">로그인</div>
 			<div className="w-96 border-t border-l border-r border-b border-gray-200 rounded-lg px-6 py-6 mx-auto">
 				<form className="">
 					<div className="w-full rounded-lg border-l border-b border-t border-r border-gray-200">
@@ -23,6 +34,7 @@ export default function Login() {
 							<input
 								className="px-2 py-2 flex-1 rounded-t-lg  focus:outline-green-500 text-black pl-8"
 								placeholder="아이디"
+								{...register("id", { required: true })}
 							></input>
 						</div>
 						<div className="w-full border-none border-gray-200 text-gray-200 flex relative">
@@ -38,8 +50,9 @@ export default function Login() {
 								</svg>
 							</div>
 							<input
-								className=" px-2 py-2 flex-1 rounded-b-lg focus:outline-green-500 text-black pl-8"
+								className="px-2 py-2 flex-1 rounded-b-lg focus:outline-green-500 text-black pl-8"
 								placeholder="비밀번호"
+								{...register("password", { required: true })}
 							></input>
 						</div>
 					</div>
