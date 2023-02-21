@@ -30,7 +30,7 @@ export default function Login() {
 		<div className="w-full h-screen">
 			<div className="w-96 mx-auto text-center mt-32 mb-8 text-2xl">로그인</div>
 			<div className="w-96 border-t border-l border-r border-b border-gray-200 rounded-lg px-6 py-6 mx-auto">
-				<form className="">
+				<form onSubmit={handleSubmit(onValid)} className="">
 					<div className="w-full rounded-lg border-l border-b border-t border-r border-gray-200">
 						<div className="w-full border-none border-gray-200 text-gray-200 flex relative">
 							<div className="w-4 h-4 text-gray-200 mx-2 my-3 absolute left-1">
