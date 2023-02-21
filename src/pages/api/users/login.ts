@@ -1,9 +1,30 @@
+import client from "@/libs/server/client";
 import withHandler from "@/libs/server/withHandler";
 import { NextApiRequest, NextApiResponse } from "next";
+import { LoginData } from "@/pages/login";
+import { withApiSession } from "@/libs/server/withSession";
 
-function handler(req: NextApiRequest, res: NextApiResponse) {
-	console.log("login api works!");
-	return res.status(200).end();
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { id, password }: LoginData = req.body;
+	const user = await client.user.findFirst({
+		where: {
+			identifier: id,
+			password: password,
+		},
+	});
+
+	if (!user) {
+		return res.status(400).json({
+			error: "User information is missing. Please check your ID and password.",
+		});
+	}
+
+	req.session.user = {
+		id: +user.identifier,
+	};
+	await req.session.save();
+	console.log(user);
+	return res.status(200).json({ loginSuccess: true });
 }
 
-export default withHandler("POST", handler);
+export default withApiSession(withHandler("POST", handler));

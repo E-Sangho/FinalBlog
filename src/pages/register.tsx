@@ -2,7 +2,7 @@ import useMutation from "@/libs/client/useMutation";
 import { useForm } from "react-hook-form";
 
 interface RegisterData {
-	id: string;
+	identifier: string;
 	password: string;
 	checkPassword: string;
 	username: string;
@@ -24,13 +24,13 @@ export default function Register() {
 			<div className="w-96 border-t border-l border-r border-b border-gray-200 rounded-lg px-6 py-6 mx-auto">
 				<form onSubmit={handleSubmit(onValid)}>
 					<div className="flex flex-col mb-4">
-						<label htmlFor="id" className="mb-2">
+						<label htmlFor="identifier" className="mb-2">
 							아이디
 						</label>
 						<input
-							id="id"
+							id="identifier"
 							className="px-2 py-2 flex-1 rounded-lg border border-gray-300 focus:outline-green-500 text-black"
-							{...register("id", { required: true })}
+							{...register("identifier", { required: true })}
 						></input>
 					</div>
 					<div className="flex flex-col mb-4">

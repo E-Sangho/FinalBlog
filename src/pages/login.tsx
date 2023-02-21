@@ -1,18 +1,31 @@
 import useMutation from "@/libs/client/useMutation";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-interface LoginData {
+export interface LoginData {
 	id: string;
 	password: string;
 }
 
+interface LoginResult {
+	loginSuccess: boolean;
+}
+
 export default function Login() {
-	const [enter, { loading, data, error }] = useMutation("api/users/login");
+	const [enter, { loading, data, error }] =
+		useMutation<LoginResult>("api/users/login");
 	const { register, handleSubmit } = useForm<LoginData>();
 	const onValid = (data: LoginData) => {
 		if (loading) return;
 		enter(data);
 	};
+	const router = useRouter();
+	useEffect(() => {
+		if (data?.loginSuccess) {
+			router.push("/");
+		}
+	}, [data, router]);
 	return (
 		<div className="w-full h-screen">
 			<div className="w-96 mx-auto text-center mt-32 mb-8 text-2xl">로그인</div>
