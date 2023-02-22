@@ -9,7 +9,7 @@ export interface LoginData {
 }
 
 interface LoginResult {
-	loginSuccess: boolean;
+	isLogin: boolean;
 }
 
 export default function Login() {
@@ -22,7 +22,7 @@ export default function Login() {
 	};
 	const router = useRouter();
 	useEffect(() => {
-		if (data?.loginSuccess) {
+		if (data?.isLogin) {
 			router.push("/");
 		}
 	}, [data, router]);

@@ -24,7 +24,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	};
 	await req.session.save();
 	console.log(user);
-	return res.status(200).json({ loginSuccess: true });
+	return res.status(200).json({ isLogin: true });
 }
 
-export default withApiSession(withHandler("POST", handler));
+export default withApiSession(
+	withHandler({
+		method: "POST",
+		handler: handler,
+		isPrivate: false,
+	})
+);
