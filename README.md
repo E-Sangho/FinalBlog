@@ -25,3 +25,7 @@ https://pish.tistory.com/24
 [O] 마크다운 writer 코드블럭 hover effect
 [O] 마크다운 writer 코드블럭 짝수, 홀수 라인 구분
 [O] 마크다운 writer r 태그가 생성되는 에러, 첫 줄에 class 추가되지 않는 에러 수정
+
+Client 모델을 업데이트 하려면 아래 명령어 사용
+`npx prisma generate`
+출처: https://github.com/prisma/prisma/discussions/4568

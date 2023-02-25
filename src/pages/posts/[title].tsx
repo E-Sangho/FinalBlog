@@ -1,8 +1,20 @@
 import Comment from "@/components/Comment";
 import Layout from "@/components/layout";
 import MarkdownRenderer from "@/components/markdownRenderer";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { sample } from "../../util/mdSample";
+import useSWR from "swr";
+import { Post, User } from "@prisma/client";
+
+interface PostWithUser extends Post {
+	user: User;
+}
+
+interface PostResponse {
+	success: boolean;
+	post: PostWithUser;
+}
 
 export default function ReadPost() {
 	const textSample = `\`\`\`javascript\nlet a = 0;\nlet b = 0;\nfor (int i = 0; i < 10; ++i) {\n	console.log("hello");\n}\n\`\`\``;
@@ -15,6 +27,10 @@ export default function ReadPost() {
 	const date = "2023-02-12 15:45:06";
 	const category = "Java";
 	const tags = ["Java", "Backend", "CS"];
+	const router = useRouter();
+	const { data } = useSWR<PostResponse>(
+		router.query.title ? `/api/posts/${router.query.title}` : null
+	);
 	return (
 		<Layout>
 			<div className="relative">
@@ -60,8 +76,8 @@ export default function ReadPost() {
 				</div>
 			</form>
 			<div className="mx-16">
-				{[1, 1, 1, 1].map(() => (
-					<Comment isReversed={false} />
+				{[1, 1, 1, 1].map((_, index) => (
+					<Comment isReversed={false} key={index} />
 				))}
 			</div>
 		</Layout>

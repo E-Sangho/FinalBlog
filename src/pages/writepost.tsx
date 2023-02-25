@@ -11,22 +11,31 @@ import { sample } from "@/util/mdSample";
 import MarkdownRenderer from "@/components/markdownRenderer";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
+import { Post } from "@prisma/client";
+import { useRouter } from "next/router";
 
-interface FormValue {
+export interface FormValue {
 	title: string;
 	category: string;
-	tags?: string;
 	draft: boolean;
 	uploadImage: string;
 	contents: string;
 }
+
+interface IPostUpload {
+	success: boolean;
+	post: Post;
+}
+
 export default function writePost() {
+	const router = useRouter();
 	const { register, watch, setValue, handleSubmit } = useForm<FormValue>({
 		defaultValues: {
 			contents: "",
 		},
 	});
-	const [enter, { loading, data, error }] = useMutation("/api/posts");
+	const [enter, { loading, data, error }] =
+		useMutation<IPostUpload>("/api/posts");
 	const [images, setImages] = useState<string[]>([]);
 	const sampleText = sample;
 	let contents = watch("contents");
@@ -64,6 +73,11 @@ export default function writePost() {
 			tbody.children[0].classList.add("hover:bg-blue-200");
 		});
 	}, [contents]);
+	useEffect(() => {
+		if (data?.success) {
+			router.push(`/posts/${data.post.id}`);
+		}
+	});
 	// make textarea can recognize tab key
 	const enableTabKey = (event: KeyboardEvent<HTMLTextAreaElement>) => {
 		if (event.key === "Tab") {
@@ -79,6 +93,7 @@ export default function writePost() {
 	};
 	// 포스트 작성 버튼 눌렀을 때 작동하는 handler
 	const onValid = (data: FormValue) => {
+		if (loading) return;
 		enter(data);
 	};
 	return (
@@ -145,7 +160,7 @@ export default function writePost() {
 						</div>
 						<div>
 							<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
-								포스트 작성
+								{loading ? "업로드중" : "포스트 작성"}
 							</button>
 						</div>
 					</div>
