@@ -20,6 +20,7 @@ export interface FormValue {
 	draft: boolean;
 	uploadImage: string;
 	contents: string;
+	tags: string;
 }
 
 interface IPostUpload {

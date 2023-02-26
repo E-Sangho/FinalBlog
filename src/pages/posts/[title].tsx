@@ -14,6 +14,7 @@ interface PostWithUser extends Post {
 interface PostResponse {
 	success: boolean;
 	post: PostWithUser;
+	isLiked: boolean;
 }
 
 export default function ReadPost() {

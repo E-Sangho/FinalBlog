@@ -30,7 +30,9 @@ model Post {
   updatedAt  DateTime   @updatedAt
   view       Int        @default(0)
   title      String     @unique
-  category   Category[]
+  category   Category   @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  tags       Tag[]
   author     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
   titleImage String     @db.Text
@@ -49,6 +51,12 @@ model Category {
   id       Int    @id @default(autoincrement())
   category String
   post     Post[]
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  tag  String
+  post Post[]
 }
 
 model Favorite {

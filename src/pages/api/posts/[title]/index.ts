@@ -3,7 +3,10 @@ import client from "@/libs/server/client";
 import withHandler from "@/libs/server/withHandler";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { title } = req.query;
+	const {
+		query: { title },
+		session: { user },
+	} = req;
 	if (typeof title === "string") {
 		const post = await client.post.findUnique({
 			where: {
@@ -18,9 +21,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				},
 			},
 		});
+		const isLiked = Boolean(
+			await client.favorite.findFirst({
+				where: {
+					postId: post?.id,
+					userId: user?.id,
+				},
+			})
+		);
 		res.json({
 			success: true,
 			post,
+			isLiked,
 		});
 	}
 }
