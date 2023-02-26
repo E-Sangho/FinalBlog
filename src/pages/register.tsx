@@ -16,20 +16,11 @@ export default function Register() {
 		register,
 		handleSubmit,
 		formState: { errors },
-		setError,
 	} = useForm<RegisterData>({
 		mode: "onChange",
 	});
 	useEffect(() => {}, [data, error]);
 	const onValid = (data: RegisterData) => {
-		if (data.password !== data.checkPassword) {
-			setError(
-				"checkPassword",
-				{ message: "비밀번호가 일치하지 않습니다." },
-				{ shouldFocus: true }
-			);
-			return;
-		}
 		if (loading) return;
 		enter(data);
 	};
