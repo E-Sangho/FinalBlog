@@ -23,7 +23,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		id: +user.identifier,
 	};
 	await req.session.save();
-	console.log(user);
 	return res.status(200).json({ isLogin: true });
 }
 

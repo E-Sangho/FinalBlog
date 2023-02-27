@@ -1,5 +1,7 @@
 import useMutation from "@/libs/client/useMutation";
-import { useEffect } from "react";
+import { ResponseType } from "@/libs/server/withHandler";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface RegisterData {
@@ -11,7 +13,9 @@ interface RegisterData {
 }
 
 export default function Register() {
-	const [enter, { loading, data, error }] = useMutation("api/users/register");
+	const router = useRouter();
+	const [enter, { loading, data, error }] =
+		useMutation<ResponseType>("api/users/register");
 	const {
 		register,
 		handleSubmit,
@@ -19,7 +23,11 @@ export default function Register() {
 	} = useForm<RegisterData>({
 		mode: "onChange",
 	});
-	useEffect(() => {}, [data, error]);
+	useEffect(() => {
+		if (data?.isAPISuccessful) {
+			router.replace("/");
+		}
+	}, [data, router]);
 	const onValid = (data: RegisterData) => {
 		if (loading) return;
 		enter(data);
@@ -29,6 +37,12 @@ export default function Register() {
 			<div className="w-96 mx-auto text-center mt-32 mb-8 text-2xl">
 				회원가입
 			</div>
+			{data?.error ? (
+				<div className="mx-auto text-center text-lg mb-8 text-red-500">
+					{data?.error}
+				</div>
+			) : null}
+
 			<div className="w-96 border-t border-l border-r border-b border-gray-200 rounded-lg px-6 py-6 mx-auto">
 				<form onSubmit={handleSubmit(onValid)}>
 					<div className="flex flex-col mb-4">

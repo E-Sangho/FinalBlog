@@ -6,6 +6,11 @@ interface ConfigType {
 	isPrivate?: boolean;
 }
 
+export interface ResponseType {
+	isAPISuccessful: boolean;
+	[key: string]: any;
+}
+
 type method = "GET" | "POST" | "DELETE";
 
 export default function withHandler({

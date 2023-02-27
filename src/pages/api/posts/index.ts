@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import client from "@/libs/server/client";
 import withHandler from "@/libs/server/withHandler";
+import { withApiSession } from "@/libs/server/withSession";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const {
@@ -10,6 +11,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 	if (req.method === "GET") {
 		const posts = await client.post.findMany({});
+		return res.json({
+			success: true,
+			posts,
+		});
 		return res.json({
 			success: true,
 			posts,
@@ -43,8 +48,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	}
 }
 
-export default withHandler({
-	methods: ["GET", "POST"],
-	handler: handler,
-	isPrivate: false,
-});
+export default withApiSession(
+	withHandler({
+		methods: ["GET", "POST"],
+		handler: handler,
+		isPrivate: false,
+	})
+);
