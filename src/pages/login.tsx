@@ -65,6 +65,7 @@ export default function Login() {
 							<input
 								className="px-2 py-2 flex-1 rounded-b-lg focus:outline-green-500 text-black pl-8"
 								placeholder="비밀번호"
+								type="password"
 								{...register("password", { required: true })}
 							></input>
 						</div>
