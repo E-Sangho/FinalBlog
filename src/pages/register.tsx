@@ -145,6 +145,7 @@ export default function Register() {
 						</label>
 						<input
 							id="email"
+							placeholder="이메일을 입력해주세요"
 							type="email"
 							className="px-2 py-2 flex-1 rounded-lg border border-gray-300 focus:outline-green-500 text-black"
 							{...register("email", {
