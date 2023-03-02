@@ -1,4 +1,5 @@
 import Layout from "@/components/layout";
+import useMutation from "@/libs/client/useMutation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -10,17 +11,53 @@ interface IEditProfile {
 	checkPassword: string;
 }
 
+interface EditProfileResponse {
+	isAPISuccessful: boolean;
+	error?: string;
+}
+
 export default function EditProfile() {
 	const { register, handleSubmit, watch } = useForm<IEditProfile>();
 	const [avatarPreview, setAvatarPreview] = useState("");
+	const [editProfile, { data, loading }] =
+		useMutation<EditProfileResponse>("/api/users/profile");
 	const avatar = watch("avatar");
-	const onValid = (data: IEditProfile) => {};
 	useEffect(() => {
 		if (avatar && avatar.length > 0) {
 			const file = avatar[0];
 			setAvatarPreview(URL.createObjectURL(file));
 		}
 	}, [avatar]);
+	const onValid = async ({
+		username,
+		email,
+		password,
+		checkPassword,
+		avatar,
+	}: IEditProfile) => {
+		if (loading) return;
+
+		if (avatar && avatar.length > 0) {
+			const cloudflareRequest = await fetch(`/api/files`);
+			const cloudflareUrl = await cloudflareRequest.json();
+			console.log(cloudflareUrl);
+			return;
+			editProfile({
+				username,
+				email,
+				password,
+				checkPassword,
+				avatar,
+			});
+		} else {
+			editProfile({
+				username,
+				email,
+				password,
+				checkPassword,
+			});
+		}
+	};
 	return (
 		<Layout>
 			<div className="px-4 py-4">
@@ -55,7 +92,6 @@ export default function EditProfile() {
 									</svg>
 								</div>
 							)}
-
 							<input
 								id="avatar"
 								className="hidden"
