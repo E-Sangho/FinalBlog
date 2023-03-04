@@ -8,7 +8,7 @@ interface IPostsResponse {
 }
 
 export default function Home() {
-	const { data } = useSWR<IPostsResponse>("api/posts");
+	// const { data } = useSWR<IPostsResponse>("api/posts");
 	return (
 		<Layout>
 			<div></div>

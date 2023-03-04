@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export interface LoginData {
-	id: string;
+	identifier: string;
 	password: string;
 }
 
@@ -47,7 +47,7 @@ export default function Login() {
 							<input
 								className="px-2 py-2 flex-1 rounded-t-lg  focus:outline-green-500 text-black pl-8"
 								placeholder="아이디"
-								{...register("id", { required: true })}
+								{...register("identifier", { required: true })}
 							></input>
 						</div>
 						<div className="w-full border-none border-gray-200 text-gray-200 flex relative">

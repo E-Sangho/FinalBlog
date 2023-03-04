@@ -2,6 +2,7 @@ import Layout from "@/components/layout";
 import useMutation from "@/libs/client/useMutation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import useUser from "@/libs/client/useUser";
 
 interface IEditProfile {
 	avatar?: FileList;
@@ -17,6 +18,7 @@ interface EditProfileResponse {
 }
 
 export default function EditProfile() {
+	const { user } = useUser({ toLoginPage: true });
 	const { register, handleSubmit, watch } = useForm<IEditProfile>();
 	const [avatarPreview, setAvatarPreview] = useState("");
 	const [editProfile, { data, loading }] =
@@ -37,10 +39,15 @@ export default function EditProfile() {
 	}: IEditProfile) => {
 		if (loading) return;
 
-		if (avatar && avatar.length > 0) {
+		if (avatar && avatar.length > 0 && user?.username) {
 			const cloudflareRequest = await fetch(`/api/files`);
-			const cloudflareUrl = await cloudflareRequest.json();
-			console.log(cloudflareUrl);
+			const { id, uploadURL } = await cloudflareRequest.json();
+			const form = new FormData();
+			form.append("file", avatar[0], user.username);
+			fetch(uploadURL, {
+				method: "POST",
+				body: form,
+			});
 			return;
 			editProfile({
 				username,

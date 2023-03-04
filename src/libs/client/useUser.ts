@@ -1,15 +1,35 @@
+import { User } from "@prisma/client";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import useSWR from "swr";
 
-export default function useUser() {
-	const { data, error } = useSWR("/api/users/profile");
-	const router = useRouter();
-	useEffect(() => {
-		if (data && !data.isLogin) {
-			router.replace("/login");
-		}
-	}, [data, router]);
+interface ProfileResponse {
+	isAPISuccessful: boolean;
+	profile: User;
+}
 
-	return { user: data?.profile, isLoading: !data && !error };
+interface IUserUser {
+	toLoginPage?: boolean;
+}
+
+interface LoginResponse {
+	isLogin: boolean;
+}
+
+export default function useUser({ toLoginPage = true }: IUserUser) {
+	const { data, error, mutate } = useSWR<ProfileResponse>(
+		"/api/users/profile",
+		{
+			shouldRetryOnError: false,
+		}
+	);
+	if (toLoginPage) {
+		const router = useRouter();
+		useEffect(() => {
+			if (data && !data.isAPISuccessful) {
+				router.replace("/login");
+			}
+		}, [data, router]);
+	}
+	return { user: data?.profile, isLoading: !data && !error, mutate };
 }

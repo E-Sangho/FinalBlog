@@ -6,11 +6,11 @@ import { withApiSession } from "@/libs/server/withSession";
 import { comparePassword, hashPassword } from "@/libs/server/bcrypt";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { id, password }: LoginData = req.body;
+	const { identifier, password }: LoginData = req.body;
 
 	const user = await client.user.findFirst({
 		where: {
-			identifier: id,
+			identifier,
 		},
 	});
 
@@ -29,8 +29,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	}
 
 	req.session.user = {
-		id: +user.identifier,
+		id: +user.id,
 	};
+
 	await req.session.save();
 	return res.status(200).json({ isLogin: true });
 }

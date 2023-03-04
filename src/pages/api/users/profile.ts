@@ -8,11 +8,23 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
 		const profile = await client.user.findUnique({
 			where: { id: req.session.user?.id },
+			select: {
+				username: true,
+				email: true,
+				avatar: true,
+			},
 		});
-		res.json({
-			ok: true,
-			profile,
-		});
+		if (profile) {
+			res.json({
+				isAPISuccessful: true,
+				profile,
+			});
+		} else {
+			res.json({
+				isAPISuccessful: false,
+				error: "You are not loged in.",
+			});
+		}
 	}
 
 	if (req.method === "POST") {

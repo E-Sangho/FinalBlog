@@ -27,7 +27,7 @@ export default function withHandler({
 		}
 
 		if (isPrivate && !req.session.user) {
-			return res.status(401).json({ isLogin: false });
+			return res.status(200).json({ isAPISuccessful: false, profile: null });
 		}
 
 		try {
