@@ -8,8 +8,6 @@ interface IEditProfile {
 	avatar?: FileList;
 	username: string;
 	email: string;
-	password: string;
-	checkPassword: string;
 }
 
 interface EditProfileResponse {
@@ -19,32 +17,33 @@ interface EditProfileResponse {
 
 export default function EditProfile() {
 	const { user } = useUser({ toLoginPage: true });
-	const { register, handleSubmit, watch } = useForm<IEditProfile>();
+	const { register, handleSubmit, watch, setValue } = useForm<IEditProfile>();
 	const [avatarPreview, setAvatarPreview] = useState("");
 	const [editProfile, { data, loading }] =
 		useMutation<EditProfileResponse>("/api/users/profile");
 	const avatar = watch("avatar");
+	useEffect(() => {
+		if (user) {
+			setValue("username", user ? user.username : "");
+			setValue("email", user?.email ? user.email : "");
+			setAvatarPreview(user?.avatar ? user.avatar : avatarPreview);
+		}
+	});
 	useEffect(() => {
 		if (avatar && avatar.length > 0) {
 			const file = avatar[0];
 			setAvatarPreview(URL.createObjectURL(file));
 		}
 	}, [avatar]);
-	const onValid = async ({
-		username,
-		email,
-		password,
-		checkPassword,
-		avatar,
-	}: IEditProfile) => {
+	const onValid = async ({ username, email, avatar }: IEditProfile) => {
 		if (loading) return;
-
 		if (avatar && avatar.length > 0 && user?.username) {
 			const cloudflareRequest = await fetch(`/api/files`);
+			console.log(cloudflareRequest);
 			const { id, uploadURL } = await cloudflareRequest.json();
 			const form = new FormData();
 			form.append("file", avatar[0], user.username);
-			fetch(uploadURL, {
+			await fetch(uploadURL, {
 				method: "POST",
 				body: form,
 			});
@@ -52,16 +51,12 @@ export default function EditProfile() {
 			editProfile({
 				username,
 				email,
-				password,
-				checkPassword,
 				avatar,
 			});
 		} else {
 			editProfile({
 				username,
 				email,
-				password,
-				checkPassword,
 			});
 		}
 	};
@@ -173,7 +168,7 @@ export default function EditProfile() {
 							></input>
 						</div>
 					</div>
-					<div className="flex items-center pb-2 pt-2">
+					{/* <div className="flex items-center pb-2 pt-2">
 						<div className="ml-3 w-6 h-6 text-gray-300 mr-4">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +236,7 @@ export default function EditProfile() {
 								})}
 							></input>
 						</div>
-					</div>
+					</div> */}
 					<button className="my-4 mb-2 mx-auto block bg-green-500 py-2 px-4 rounded-lg text-white">
 						프로필 저장
 					</button>
