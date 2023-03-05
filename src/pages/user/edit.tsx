@@ -19,7 +19,13 @@ interface EditProfileResponse {
 export default function EditProfile() {
 	const router = useRouter();
 	const { user } = useUser({ toLoginPage: true });
-	const { register, handleSubmit, watch, setValue } = useForm<IEditProfile>();
+	const {
+		register,
+		handleSubmit,
+		watch,
+		setValue,
+		formState: { errors },
+	} = useForm<IEditProfile>();
 	const [avatarPreview, setAvatarPreview] = useState("");
 	const [editProfile, { data, loading }] =
 		useMutation<EditProfileResponse>("/api/users/profile");
@@ -35,7 +41,7 @@ export default function EditProfile() {
 					: avatarPreview
 			);
 		}
-	});
+	}, [user, setValue]);
 	useEffect(() => {
 		if (avatar && avatar.length > 0) {
 			const file = avatar[0];
@@ -57,7 +63,7 @@ export default function EditProfile() {
 			const {
 				result: { id },
 			} = await response.json();
-			editProfile({
+			const res = editProfile({
 				username,
 				email,
 				avatar: id,
@@ -250,6 +256,19 @@ export default function EditProfile() {
 					<button className="my-4 mb-2 mx-auto block bg-green-500 py-2 px-4 rounded-lg text-white">
 						프로필 저장
 					</button>
+					{data?.error ? (
+						<div className="mx-auto text-center text-lg mb-8 text-red-500">
+							{data?.error}
+						</div>
+					) : null}
+					<div className="flex flex-col items-center">
+						<span className="text-red-400 px-2 py-1">
+							{errors?.username?.message}
+						</span>
+						<span className="text-red-400 px-2 py-1">
+							{errors?.email?.message}
+						</span>
+					</div>
 				</form>
 			</div>
 		</Layout>
