@@ -1,6 +1,8 @@
 import Layout from "@/components/layout";
+import useUser from "@/libs/client/useUser";
 import Link from "next/link";
 export default function Profile() {
+	const { user } = useUser({ toLoginPage: true });
 	return (
 		<Layout>
 			<div className="px-4 py-4">
@@ -9,21 +11,28 @@ export default function Profile() {
 						사용자 정보
 					</div>
 					<div className="flex border-b border-gray-300 pb-2">
-						<div className="w-12 h-12 text-gray-50 rounded-full bg-gray-300 p-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-								width="100%"
-								height="100%"
-							>
-								<path
-									fillRule="evenodd"
-									d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
-									clipRule="evenodd"
-								/>
-							</svg>
-						</div>
+						{user?.avatar ? (
+							<img
+								src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/public`}
+								className="w-12 h-12 rounded-full border"
+							/>
+						) : (
+							<div className="w-12 h-12 text-gray-50 rounded-full bg-gray-300 p-2">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									fill="currentColor"
+									width="100%"
+									height="100%"
+								>
+									<path
+										fillRule="evenodd"
+										d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+										clipRule="evenodd"
+									/>
+								</svg>
+							</div>
+						)}
 						<div className="flex justify-between flex-1 pl-3 items-center">
 							<div className="font-bold text-2xl">이상호</div>
 							<Link href="/user/edit">

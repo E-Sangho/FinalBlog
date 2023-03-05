@@ -30,26 +30,27 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "POST") {
 		const {
 			session: { user },
-			body: { username, email, password, checkPassword, avatar },
+			body: { username, email, avatar },
 		} = req;
-
-		// check password
-		if (password !== checkPassword) {
-			return res.status(400).json({ error: "Passwords are different." });
-		}
-		// check whether conditions on register page are met.
-		if (
-			password.length < 14 ||
-			checkPassword.length < 14 ||
-			username.length < 4 ||
-			username.length > 16 ||
-			(email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i))
-		) {
-			return res.status(400).json({
-				error:
-					"Your registraion information doesn't satisfy recommended condition",
-			});
-		}
+		console.log("here???");
+		console.log(avatar);
+		// // check password
+		// if (password !== checkPassword) {
+		// 	return res.status(400).json({ error: "Passwords are different." });
+		// }
+		// // check whether conditions on register page are met.
+		// if (
+		// 	password.length < 14 ||
+		// 	checkPassword.length < 14 ||
+		// 	username.length < 4 ||
+		// 	username.length > 16 ||
+		// 	(email && !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i))
+		// ) {
+		// 	return res.status(400).json({
+		// 		error:
+		// 			"Your registraion information doesn't satisfy recommended condition",
+		// 	});
+		// }
 
 		// check username exists or not
 		const usernameExists = await client.user.findUnique({
@@ -58,25 +59,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			},
 		});
 
-		if (usernameExists) {
+		if (usernameExists && usernameExists.id !== user?.id) {
 			return res
 				.status(400)
 				.json({ error: "The username you selected already exists." });
 		}
 
-		// encrypt password using bcrypt
-		const hash = hashPassword({ password });
-		if (!hash) {
-			return res.status(400).json({
-				error: "Something wrong when encrypt password. Plesse try again",
-			});
-		}
-
-		const User = await client.user.findUnique({
-			where: {
-				id: user?.id,
-			},
-		});
+		// // encrypt password using bcrypt
+		// const hash = hashPassword({ password });
+		// if (!hash) {
+		// 	return res.status(400).json({
+		// 		error: "Something wrong when encrypt password. Plesse try again",
+		// 	});
+		// }
 
 		await client.user.update({
 			where: {
@@ -84,7 +79,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			},
 			data: {
 				username,
-				password: hash,
 				email,
 				avatar,
 			},

@@ -16,7 +16,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		}
 	);
 	const data = await response.json();
-	console.log(data);
 	res.json({
 		isAPISuccessful: true,
 		...data.result,

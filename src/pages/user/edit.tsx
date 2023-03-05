@@ -3,6 +3,7 @@ import useMutation from "@/libs/client/useMutation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useUser from "@/libs/client/useUser";
+import { useRouter } from "next/router";
 
 interface IEditProfile {
 	avatar?: FileList;
@@ -16,6 +17,7 @@ interface EditProfileResponse {
 }
 
 export default function EditProfile() {
+	const router = useRouter();
 	const { user } = useUser({ toLoginPage: true });
 	const { register, handleSubmit, watch, setValue } = useForm<IEditProfile>();
 	const [avatarPreview, setAvatarPreview] = useState("");
@@ -26,7 +28,12 @@ export default function EditProfile() {
 		if (user) {
 			setValue("username", user ? user.username : "");
 			setValue("email", user?.email ? user.email : "");
-			setAvatarPreview(user?.avatar ? user.avatar : avatarPreview);
+			setAvatarPreview(
+				user?.avatar
+					? `https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/public
+			`
+					: avatarPreview
+			);
 		}
 	});
 	useEffect(() => {
@@ -39,19 +46,21 @@ export default function EditProfile() {
 		if (loading) return;
 		if (avatar && avatar.length > 0 && user?.username) {
 			const cloudflareRequest = await fetch(`/api/files`);
-			console.log(cloudflareRequest);
-			const { id, uploadURL } = await cloudflareRequest.json();
+			const { uploadURL } = await cloudflareRequest.json();
 			const form = new FormData();
 			form.append("file", avatar[0], user.username);
-			await fetch(uploadURL, {
+			// @ts-ignore
+			const response = await fetch(uploadURL, {
 				method: "POST",
 				body: form,
 			});
-			return;
+			const {
+				result: { id },
+			} = await response.json();
 			editProfile({
 				username,
 				email,
-				avatar,
+				avatar: id,
 			});
 		} else {
 			editProfile({
@@ -59,6 +68,7 @@ export default function EditProfile() {
 				email,
 			});
 		}
+		router.push("/user/profile");
 	};
 	return (
 		<Layout>
