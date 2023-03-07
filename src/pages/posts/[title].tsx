@@ -9,8 +9,8 @@ import { Category, Post, Tag, User } from "@prisma/client";
 
 interface PostWithUser extends Post {
 	user: User;
-	category: Category;
-	tags: Tag;
+	category: Category[];
+	tags: Tag[];
 }
 
 interface PostResponse {
@@ -20,17 +20,15 @@ interface PostResponse {
 }
 
 export default function ReadPost() {
-	const tags = ["Java", "Backend", "CS"];
 	const router = useRouter();
 	const { data } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
-	console.log(data);
 	return (
 		<Layout>
 			<div className="relative">
 				<div className="w-full h-96 opacity-60 bg-black absolute"></div>
-				<div className="w-full overflow-hidden">
+				<div className="w-full overflow-hidden h-96">
 					{data?.post?.titleImage ? (
 						<img
 							src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${data?.post.titleImage}/public`}
@@ -42,7 +40,12 @@ export default function ReadPost() {
 					{data?.post.title}
 				</div>
 				<div className="w-full h-96 absolute top-0 flex justify-end items-end text-xl text-slate-100 px-8 py-8">
-					<div>{data?.post.category.category}</div>
+					<ul>
+						{data?.post.tags.map((tag) => (
+							<li>{tag.tag}</li>
+						))}
+					</ul>
+					<div>{data?.post.category[0].category}</div>
 					<div>{data?.post.updatedAt.toString()}</div>
 				</div>
 			</div>
