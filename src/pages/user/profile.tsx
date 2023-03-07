@@ -13,7 +13,7 @@ export default function Profile() {
 					<div className="flex border-b border-gray-300 pb-2">
 						{user?.avatar ? (
 							<img
-								src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/public`}
+								src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/avatar`}
 								className="w-12 h-12 rounded-full border"
 							/>
 						) : (

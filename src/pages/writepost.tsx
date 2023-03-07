@@ -13,12 +13,13 @@ import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
 import { Post } from "@prisma/client";
 import { useRouter } from "next/router";
+import useUser from "@/libs/client/useUser";
 
 export interface FormValue {
 	title: string;
 	category: string;
 	draft: boolean;
-	uploadImage: string;
+	titleImage: FileList;
 	contents: string;
 	tags: string;
 }
@@ -30,16 +31,26 @@ interface IPostUpload {
 
 export default function writePost() {
 	const router = useRouter();
+	const user = useUser({ toLoginPage: true });
 	const { register, watch, setValue, handleSubmit } = useForm<FormValue>({
 		defaultValues: {
 			contents: "",
 		},
 	});
-	const [enter, { loading, data, error }] =
+	const [writePost, { loading, data, error }] =
 		useMutation<IPostUpload>("/api/posts");
 	const [images, setImages] = useState<string[]>([]);
 	const sampleText = sample;
 	let contents = watch("contents");
+	// post image
+	const [heroImagePreview, setHeroImagePreview] = useState("");
+	const titleImage = watch("titleImage");
+	useEffect(() => {
+		if (titleImage && titleImage.length > 0) {
+			const file = titleImage[0];
+			setHeroImagePreview(URL.createObjectURL(file));
+		}
+	}, [titleImage]);
 	// image drop event
 	const imageDrop: DragEventHandler<HTMLTextAreaElement> = (event) => {
 		event.preventDefault();
@@ -76,7 +87,7 @@ export default function writePost() {
 	}, [contents]);
 	useEffect(() => {
 		if (data?.success) {
-			router.push(`/posts/${data.post.id}`);
+			router.push(`/posts/${data.post.title}`);
 		}
 	});
 	// make textarea can recognize tab key
@@ -93,9 +104,30 @@ export default function writePost() {
 		}
 	};
 	// 포스트 작성 버튼 눌렀을 때 작동하는 handler
-	const onValid = (data: FormValue) => {
+	const onValid = async (data: FormValue) => {
 		if (loading) return;
-		enter(data);
+		if (data.titleImage && data.titleImage.length > 0) {
+			const cloudflareRequest = await fetch(`/api/files`);
+			const { uploadURL } = await cloudflareRequest.json();
+			const form = new FormData();
+			form.append(
+				"file",
+				titleImage[0],
+				user.user?.username + "_" + data.title
+			);
+			// @ts-ignore
+			const response = await fetch(uploadURL, {
+				method: "POST",
+				body: form,
+			});
+			const {
+				result: { id },
+			} = await response.json();
+			console.log({ ...data, titleImage: id });
+			writePost({ ...data, titleImage: id });
+		} else {
+			writePost({ ...data, titleImage: "" });
+		}
 	};
 	return (
 		<Layout>
@@ -115,14 +147,12 @@ export default function writePost() {
 					</div>
 					<div className="flex justify-between">
 						<div className="flex gap-8 items-center">
-							<div className="border-2 rounded-md px-2 py-2">
-								<select
+							<div id="category" className="border-2 rounded-md px-2 py-2">
+								<label htmlFor="category">카테고리: </label>
+								<input
 									className="outline-none"
 									{...register("category", { required: true })}
-								>
-									<option value="Java">Java</option>
-									<option value="JavaScript">JavaScript</option>
-								</select>
+								></input>
 							</div>
 							<div className="border-2 rounded-md px-2 py-2">
 								<label htmlFor="drafy">비공개 : </label>
@@ -156,15 +186,17 @@ export default function writePost() {
 								type="file"
 								accept="image/*"
 								className="w-0 h-0"
-								{...register("uploadImage")}
+								{...register("titleImage")}
 							/>
 						</div>
+
 						<div>
 							<button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">
 								{loading ? "업로드중" : "포스트 작성"}
 							</button>
 						</div>
-					</div>
+					</div>{" "}
+					{heroImagePreview ? <img src={heroImagePreview} /> : null}
 					<div className="flex gap-8">
 						{/* We will write our contents here.*/}
 						<textarea

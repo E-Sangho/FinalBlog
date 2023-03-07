@@ -4,17 +4,13 @@ import withHandler from "@/libs/server/withHandler";
 import { withApiSession } from "@/libs/server/withSession";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const {
-		session: { user },
-		body: { title, category, tags, draft, uploadImage, contents },
-	} = req;
-
 	if (req.method === "GET") {
+		const {
+			session: { user },
+			body: { title, category, tags, draft, titleImage, contents },
+		} = req;
+
 		const posts = await client.post.findMany({});
-		return res.json({
-			success: true,
-			posts,
-		});
 		return res.json({
 			success: true,
 			posts,
@@ -22,12 +18,32 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	}
 
 	if (req.method === "POST") {
+		const {
+			session: { user },
+			body: { title, category, tags, draft, titleImage, contents },
+		} = req;
+
+		const tag = tags
+			.split(",")
+			.map((e: string) => e.trim())
+			.map((e: string) => {
+				let tag = {
+					tag: e,
+				};
+				return tag;
+			});
+
 		const post = await client.post.create({
 			data: {
-				title,
-				category,
+				title: title.replace(" ", "_"),
+				category: {
+					create: [{ category }],
+				},
 				draft,
-				titleImage: uploadImage ? uploadImage : "",
+				tags: {
+					create: tag,
+				},
+				titleImage: titleImage ? titleImage : "",
 				contents,
 				author: {
 					connect: {
@@ -36,6 +52,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				},
 			},
 		});
+
 		if (!post) {
 			res.json({
 				success: false,

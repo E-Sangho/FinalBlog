@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import client from "@/libs/server/client";
 import withHandler from "@/libs/server/withHandler";
+import { withApiSession } from "@/libs/server/withSession";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const {
@@ -19,6 +20,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 						avatar: true,
 					},
 				},
+				category: true,
+				tags: true,
 			},
 		});
 		const isLiked = Boolean(
@@ -37,8 +40,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	}
 }
 
-export default withHandler({
-	methods: ["GET"],
-	handler: handler,
-	isPrivate: false,
-});
+export default withApiSession(
+	withHandler({
+		methods: ["GET"],
+		handler: handler,
+		isPrivate: false,
+	})
+);

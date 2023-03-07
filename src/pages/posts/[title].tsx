@@ -5,10 +5,12 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { sample } from "../../util/mdSample";
 import useSWR from "swr";
-import { Post, User } from "@prisma/client";
+import { Category, Post, Tag, User } from "@prisma/client";
 
 interface PostWithUser extends Post {
 	user: User;
+	category: Category;
+	tags: Tag;
 }
 
 interface PostResponse {
@@ -18,39 +20,36 @@ interface PostResponse {
 }
 
 export default function ReadPost() {
-	const textSample = `\`\`\`javascript\nlet a = 0;\nlet b = 0;\nfor (int i = 0; i < 10; ++i) {\n	console.log("hello");\n}\n\`\`\``;
-	const title = "Post Title";
-	const postImage =
-		"https://w.namu.la/s/95f3898eb4996f6ba5a3930b212b295da56e062e9427da87331a510d3d868bd81f24d10d242ca0d93f4ad94053b9321549cb4590ea815a8d39ba92cde1a7da445f694cd13513124c3f6d61e456014a1e0d9a3b6cbe7a28b94c757fbd60bce446";
-	const numberOfVisits = 0;
-	const numberOfComments = 0;
-	const summary = "This is summary of the Post";
-	const date = "2023-02-12 15:45:06";
-	const category = "Java";
 	const tags = ["Java", "Backend", "CS"];
 	const router = useRouter();
 	const { data } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
+	console.log(data);
 	return (
 		<Layout>
 			<div className="relative">
 				<div className="w-full h-96 opacity-60 bg-black absolute"></div>
 				<div className="w-full overflow-hidden">
-					<img
-						src={postImage}
-						className="object-fill object-center h-96 mx-auto"
-					/>
+					{data?.post?.titleImage ? (
+						<img
+							src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${data?.post.titleImage}/public`}
+							className="object-fill object-center h-96 mx-auto"
+						/>
+					) : null}
 				</div>
 				<div className="w-full h-96 absolute top-0 flex justify-center items-center text-4xl text-slate-100">
-					{title}
+					{data?.post.title}
 				</div>
 				<div className="w-full h-96 absolute top-0 flex justify-end items-end text-xl text-slate-100 px-8 py-8">
-					{date.substring(0, 10)}
+					<div>{data?.post.category.category}</div>
+					<div>{data?.post.updatedAt.toString()}</div>
 				</div>
 			</div>
 			<div className="mx-16 my-32">
-				<MarkdownRenderer text={textSample} />
+				<MarkdownRenderer
+					text={data?.post.contents ? data?.post.contents : ""}
+				/>
 			</div>
 			<form className="mx-16 bg-gray-100 rounded-2xl">
 				<div className="px-4 py-4">

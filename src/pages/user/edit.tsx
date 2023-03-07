@@ -36,7 +36,7 @@ export default function EditProfile() {
 			setValue("email", user?.email ? user.email : "");
 			setAvatarPreview(
 				user?.avatar
-					? `https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/public
+					? `https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${user?.avatar}/avatar
 			`
 					: avatarPreview
 			);
