@@ -29,3 +29,6 @@ https://pish.tistory.com/24
 Client 모델을 업데이트 하려면 아래 명령어 사용
 `npx prisma generate`
 출처: https://github.com/prisma/prisma/discussions/4568
+
+2023-03-15
+Comment 완성하기
