@@ -1,12 +1,12 @@
-import Comment from "@/components/Comment";
+import CommentComponent from "@/components/Comment";
 import Layout from "@/components/layout";
 import MarkdownRenderer from "@/components/markdownRenderer";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { sample } from "../../util/mdSample";
 import useSWR from "swr";
 import useUser from "@/libs/client/useUser";
-import { Category, Post, Tag, User } from "@prisma/client";
+import { Category, Comment, Post, Tag, User } from "@prisma/client";
+import { useForm } from "react-hook-form";
+import useMutation from "@/libs/client/useMutation";
 
 interface PostWithUser extends Post {
 	user: User;
@@ -20,12 +20,36 @@ interface PostResponse {
 	isLiked: boolean;
 }
 
+interface CommentWithUser extends Comment {
+	user: User;
+	comment: Comment;
+}
+
+interface CommentResponse {
+	success: boolean;
+	comments: CommentWithUser[];
+}
+
+interface CommentData {
+	comment: string;
+}
+
 export default function ReadPost() {
 	const router = useRouter();
 	const { data } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
+	const { data: comments } = useSWR<CommentResponse>(
+		router.query.title ? `api/comments/${router.query.title}` : null
+	);
 	const user = useUser({ toLoginPage: false });
+	const [enter, { loading, data: commentData, error }] =
+		useMutation("/api/comments");
+	const { register, handleSubmit } = useForm<CommentData>();
+	const onValid = (data: CommentData) => {
+		if (loading) return;
+		enter(data);
+	};
 	return (
 		<Layout>
 			<div className="relative">
@@ -56,7 +80,10 @@ export default function ReadPost() {
 					text={data?.post.contents ? data?.post.contents : ""}
 				/>
 			</div>
-			<form className="mx-16 bg-gray-100 rounded-2xl">
+			<form
+				onSubmit={handleSubmit(onValid)}
+				className="mx-16 bg-gray-100 rounded-2xl"
+			>
 				<div className="px-4 py-4">
 					<div className="flex items-center">
 						{user?.user?.avatar ? (
@@ -83,19 +110,28 @@ export default function ReadPost() {
 							<div className="text-gray-400">로그인 후 작성할 수 있습니다.</div>
 						)}
 					</div>
-					<div className="w-full h-24"></div>
+					<>
+						<div className="flex flex-col px-4 py-4 w-full h-64 rounded-md">
+							<textarea
+								className="w-full h-full rounded-md px-4 py-4 focus:outline-green-500"
+								{...register("comment", {
+									required: true,
+								})}
+							></textarea>
+						</div>
+						{user?.user ? (
+							<div className="flex flex-row-reverse pr-3">
+								<button className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50">
+									등록
+								</button>
+							</div>
+						) : null}
+					</>
 				</div>
-				{user?.user ? (
-					<div className="flex flex-row-reverse px-4 py-4">
-						<button className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50">
-							등록
-						</button>
-					</div>
-				) : null}
 			</form>
 			<div className="mx-16">
 				{[1, 1, 1, 1].map((_, index) => (
-					<Comment isReversed={false} key={index} />
+					<CommentComponent isReversed={false} key={index} />
 				))}
 			</div>
 		</Layout>

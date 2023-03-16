@@ -24,6 +24,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				tags: true,
 			},
 		});
+
 		const isLiked = Boolean(
 			await client.favorite.findFirst({
 				where: {
