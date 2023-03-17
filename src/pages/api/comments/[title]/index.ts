@@ -8,10 +8,31 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		const {
 			query: { title },
 		} = req;
-		const comments = await client.comment.findMany({});
+		if (typeof title !== "string") {
+			return res.json({
+				isAPISuccessful: false,
+			});
+		}
+		const post = await client.post.findUnique({
+			where: {
+				title,
+			},
+		});
+
+		console.log(post);
+
+		console.log("no problems until here.");
+
+		const comments = await client.comment.findMany({
+			where: {
+				postId: post?.id,
+			},
+		});
+
+		console.log(comments);
+
 		return res.json({
-			success: true,
-			comments,
+			isAPISuccessful: true,
 		});
 	}
 

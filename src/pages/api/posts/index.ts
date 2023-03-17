@@ -5,14 +5,10 @@ import { withApiSession } from "@/libs/server/withSession";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
-		const {
-			session: { user },
-			body: { title, category, tags, draft, titleImage, contents },
-		} = req;
-
 		const posts = await client.post.findMany({});
+
 		return res.json({
-			success: true,
+			isAPISuccessful: true,
 			posts,
 		});
 	}
@@ -35,7 +31,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 		const post = await client.post.create({
 			data: {
-				title: title.replace(" ", "_"),
+				title: title.replaceAll(" ", "_"),
 				category: {
 					create: [{ category }],
 				},

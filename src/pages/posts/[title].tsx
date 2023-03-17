@@ -7,6 +7,8 @@ import useUser from "@/libs/client/useUser";
 import { Category, Comment, Post, Tag, User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
+import useComments from "@/libs/client/useComments";
+import { useEffect } from "react";
 
 interface PostWithUser extends Post {
 	user: User;
@@ -39,17 +41,22 @@ export default function ReadPost() {
 	const { data } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
-	const { data: comments } = useSWR<CommentResponse>(
-		router.query.title ? `api/comments/${router.query.title}` : null
-	);
 	const user = useUser({ toLoginPage: false });
 	const [enter, { loading, data: commentData, error }] =
 		useMutation("/api/comments");
+	const { comments, isLoading } = useComments(`${router.query.title}`);
 	const { register, handleSubmit } = useForm<CommentData>();
 	const onValid = (data: CommentData) => {
+		console.log(data);
+		return;
 		if (loading) return;
 		enter(data);
 	};
+	useEffect(() => {
+		if (!router.query.title) {
+			return;
+		}
+	}, [router.query.title]);
 	return (
 		<Layout>
 			<div className="relative">
@@ -130,9 +137,23 @@ export default function ReadPost() {
 				</div>
 			</form>
 			<div className="mx-16">
-				{[1, 1, 1, 1].map((_, index) => (
-					<CommentComponent isReversed={false} key={index} />
-				))}
+				{isLoading ? (
+					<div>Loading comments now...</div>
+				) : (
+					<>
+						{comments ? (
+							comments.map((comment, index) => (
+								<CommentComponent
+									isReversed={false}
+									comment={comment}
+									key={index}
+								/>
+							))
+						) : (
+							<div>There is no comments on here.</div>
+						)}
+					</>
+				)}
 			</div>
 		</Layout>
 	);

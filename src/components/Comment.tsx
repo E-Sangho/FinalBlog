@@ -1,8 +1,14 @@
+import { Comment } from "@prisma/client";
+
 interface CommentProps {
 	isReversed: boolean;
+	comment: Comment;
 }
 
-export default function Comment({ isReversed }: CommentProps) {
+export default function CommentComponent({
+	isReversed,
+	comment,
+}: CommentProps) {
 	return (
 		<div className="pl-4 py-4 ">
 			<div className="flex items-center">
@@ -17,11 +23,15 @@ export default function Comment({ isReversed }: CommentProps) {
 						<path d="M304 128a80 80 0 1 0 -160 0 80 80 0 1 0 160 0zM96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM49.3 464H398.7c-8.9-63.3-63.3-112-129-112H178.3c-65.7 0-120.1 48.7-129 112zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3z" />
 					</svg>
 				</div>
-				<div className="mr-4">사용자 이름</div>
-				<div className="text-sm text-gray-400">2023-02-19</div>
+				<div className="mr-4">{comment.userId}</div>
+				<div className="text-sm text-gray-400">
+					{comment.createdAt.toString()}
+				</div>
 			</div>
 			<div className="pl-12">
-				<div className="w-full h-24 rounded-2xl bg-gray-100 mb-2"></div>
+				<div className="w-full h-24 rounded-2xl bg-gray-100 mb-2">
+					{comment.content}
+				</div>
 				<div className="flex flex-row-reverse gap-4">
 					<button className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50">
 						댓글 달기

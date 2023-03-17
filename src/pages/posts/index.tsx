@@ -1,24 +1,41 @@
 import Layout from "@/components/layout";
 import PostCard from "@/components/PostCard";
+import useMutation from "@/libs/client/useMutation";
+import usePosts from "@/libs/client/usePosts";
+import { Post } from "@prisma/client";
+import { useEffect } from "react";
+import { imageURL } from "@/util/imageURL";
 
 export default function Posts() {
+	const { posts, isLoading } = usePosts();
+	console.log(posts);
+	console.log(isLoading);
 	return (
 		<Layout>
 			<div className="max-w-5xl grid grid-cols-3 px-8 py-8 mx-auto gap-8">
-				{[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1].map(
-					(_, index) => (
-						<PostCard
-							id={`PostCard-${index}`}
-							title="Post Title"
-							postImage="https://w.namu.la/s/95f3898eb4996f6ba5a3930b212b295da56e062e9427da87331a510d3d868bd81f24d10d242ca0d93f4ad94053b9321549cb4590ea815a8d39ba92cde1a7da445f694cd13513124c3f6d61e456014a1e0d9a3b6cbe7a28b94c757fbd60bce446"
-							numberOfVisits={0}
-							numberOfComments={0}
-							summary="This is summary of the Post"
-							date={"2023-02-12 15:45:06"}
-							category="Java"
-							tags={["Java", "Backend", "CS"]}
-						/>
-					)
+				{isLoading ? (
+					<div>now Loading...</div>
+				) : (
+					<>
+						{posts ? (
+							posts.map((post, index) => (
+								<PostCard
+									id={`PostCard-${index}`}
+									title={post.title}
+									postImage={`${imageURL(post.titleImage)}`}
+									numberOfVisits={post.view}
+									numberOfComments={0}
+									summary={`${post.contents.substring(0, 100)}...`}
+									date={post.contents.toString()}
+									category="java"
+									tags={["Java", "Backend", "CS"]}
+									key={post.title}
+								/>
+							))
+						) : (
+							<div>There is no posts</div>
+						)}
+					</>
 				)}
 			</div>
 		</Layout>

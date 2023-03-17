@@ -32,7 +32,9 @@ export default function PostCard({
 					className="w-full h-20 object-contain object-center"
 				/>
 			</div>
-			<div className="text-xl text-">{title}</div>
+			<a href={`posts/${title}`}>
+				<div className="text-xl text-">{title}</div>
+			</a>
 			<div>
 				<div className="inline-block rounded-2xl bg-red-400 text-slate-100 text-sm px-2 mt-2">
 					{category}
