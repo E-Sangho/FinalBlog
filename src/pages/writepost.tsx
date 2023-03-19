@@ -17,10 +17,10 @@ import useUser from "@/libs/client/useUser";
 
 export interface FormValue {
 	title: string;
-	category: string;
+	categories: string;
 	draft: boolean;
 	titleImage: FileList;
-	contents: string;
+	content: string;
 	tags: string;
 }
 
@@ -34,14 +34,14 @@ export default function writePost() {
 	const user = useUser({ toLoginPage: true });
 	const { register, watch, setValue, handleSubmit } = useForm<FormValue>({
 		defaultValues: {
-			contents: "",
+			content: "",
 		},
 	});
 	const [writePost, { loading, data, error }] =
 		useMutation<IPostUpload>("/api/posts");
 	const [images, setImages] = useState<string[]>([]);
 	const sampleText = sample;
-	let contents = watch("contents");
+	let contents = watch("content");
 	// post image
 	const [heroImagePreview, setHeroImagePreview] = useState("");
 	const titleImage = watch("titleImage");
@@ -58,16 +58,16 @@ export default function writePost() {
 		let files = data.files;
 		const url = URL.createObjectURL(files[0]);
 		const image = `\n<img src="${url}" />`;
-		setValue("contents", contents + image);
+		setValue("content", contents + image);
 		setImages((prev) => [...prev, url]);
 	};
 	useEffect(() => {
 		// When page loaded get text from localStorage and apply it.
 		const savedText = localStorage.getItem("text");
 		if (savedText) {
-			setValue("contents", savedText);
+			setValue("content", savedText);
 		} else {
-			setValue("contents", sampleText);
+			setValue("content", sampleText);
 		}
 	}, []);
 	useEffect(() => {
@@ -148,10 +148,11 @@ export default function writePost() {
 					<div className="flex justify-between">
 						<div className="flex gap-8 items-center">
 							<div id="category" className="border-2 rounded-md px-2 py-2">
-								<label htmlFor="category">카테고리: </label>
+								<label htmlFor="categories">카테고리: </label>
 								<input
+									id="categories"
 									className="outline-none"
-									{...register("category", { required: true })}
+									{...register("categories", { required: true })}
 								></input>
 							</div>
 							<div className="border-2 rounded-md px-2 py-2">
@@ -204,7 +205,7 @@ export default function writePost() {
 							className="w-full text-blue-500 border-2 border-black rounded-2xl p-4"
 							rows={35}
 							onDrop={imageDrop}
-							{...register("contents", { required: true })}
+							{...register("content", { required: true })}
 						></textarea>
 						{/* We will render our contents here. */}
 						<MarkdownRenderer text={contents} />

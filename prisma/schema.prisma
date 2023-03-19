@@ -14,10 +14,10 @@ datasource db {
 model User {
   id         Int        @id @default(autoincrement())
   identifier String     @unique
+  password   String
   email      String?    @unique
   username   String     @unique
   avatar     String?
-  password   String
   isAdmin    Boolean    @default(false)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
@@ -27,42 +27,43 @@ model User {
 }
 
 model Post {
-  id         Int        @id @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  view       Int        @default(0)
-  title      String     @unique
-  category   Category[]
-  tags       Tag[]
-  author     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-  titleImage String     @db.Text
-  contents   String     @db.MediumText
-  draft      Boolean
-  favorites  Favorite[]
-  comments   Comment[]
+  id           Int        @id @default(autoincrement())
+  title        String     @unique
+  content      String     @db.MediumText
+  titleImage   String     @db.Text
+  draft        Boolean
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  view         Int        @default(0)
+  author       User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId     Int
+  categories   Category[]
+  tags         Tag[]
+  comments     Comment[]
+  favorites    Favorite[]
+  numFavorites Int        @default(0)
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
+  content   String   @db.MediumText
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  content   String   @db.MediumText
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  Post      Post     @relation(fields: [postId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  post      Post     @relation(fields: [postId], references: [id])
   postId    Int
 }
 
 model Category {
-  id       Int    @id @default(autoincrement())
-  category String
-  post     Post[]
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  post Post[]
 }
 
 model Tag {
   id   Int    @id @default(autoincrement())
-  tag  String
+  name String @unique
   post Post[]
 }
 

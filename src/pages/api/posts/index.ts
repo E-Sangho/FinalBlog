@@ -2,6 +2,19 @@ import { NextApiRequest, NextApiResponse } from "next";
 import client from "@/libs/server/client";
 import withHandler from "@/libs/server/withHandler";
 import { withApiSession } from "@/libs/server/withSession";
+import { IronSession } from "iron-session";
+
+interface IRequest {
+	session: IronSession;
+	body: {
+		title: string;
+		categories: string;
+		tags: string;
+		draft: boolean;
+		titleImage: string;
+		content: string;
+	};
+}
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
@@ -16,38 +29,80 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "POST") {
 		const {
 			session: { user },
-			body: { title, category, tags, draft, titleImage, contents },
-		} = req;
+			body: { title, categories, tags, draft, titleImage, content },
+		}: IRequest = req;
 
-		const tag = tags
-			.split(",")
-			.map((e: string) => e.trim())
-			.map((e: string) => {
-				let tag = {
-					tag: e,
-				};
-				return tag;
+		const categoryList = categories.split(",");
+		const tagList = tags.split(",");
+
+		const categoryPromises = categoryList.map((categoryName) => {
+			return client.category.upsert({
+				where: {
+					name: categoryName,
+				},
+				update: {},
+				create: {
+					name: categoryName,
+				},
 			});
+		});
 
-		const post = await client.post.create({
+		const tagPromises = tagList.map((tagName) => {
+			return client.category.upsert({
+				where: {
+					name: tagName,
+				},
+				update: {},
+				create: {
+					name: tagName,
+				},
+			});
+		});
+
+		const newCategories = await Promise.all(categoryPromises);
+		const newTags = await Promise.all(tagPromises);
+
+		const newPost = await client.post.create({
 			data: {
-				title: title.replaceAll(" ", "_"),
-				category: {
-					create: [{ category }],
+				title: "Test Title",
+				categories: {
+					connect: newCategories.map((category) => ({ id: category.id })),
 				},
-				draft,
 				tags: {
-					create: tag,
-				},
-				titleImage: titleImage ? titleImage : "",
-				contents,
-				author: {
-					connect: {
-						id: user?.id,
-					},
+					connect: newTags.map((tag) => ({ id: tag.id })),
 				},
 			},
 		});
+
+		// const tag = tags
+		// 	.split(",")
+		// 	.map((e: string) => e.trim())
+		// 	.map((e: string) => {
+		// 		let tag = {
+		// 			tag: e,
+		// 		};
+		// 		return tag;
+		// 	});
+
+		// const post = await client.post.create({
+		// 	data: {
+		// 		title: title.replaceAll(" ", "_"),
+		// 		categories: {
+		// 			create: [{ categories: category }],
+		// 		},
+		// 		draft,
+		// 		tags: {
+		// 			create: tag,
+		// 		},
+		// 		titleImage: titleImage ? titleImage : "",
+		// 		contents,
+		// 		author: {
+		// 			connect: {
+		// 				id: user?.id,
+		// 			},
+		// 		},
+		// 	},
+		// });
 
 		if (!post) {
 			res.json({

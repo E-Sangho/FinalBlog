@@ -13,26 +13,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				isAPISuccessful: false,
 			});
 		}
-		const post = await client.post.findUnique({
-			where: {
-				title,
-			},
-		});
 
-		console.log(post);
-
-		console.log("no problems until here.");
-
-		const comments = await client.comment.findMany({
-			where: {
-				postId: post?.id,
-			},
-		});
-
-		console.log(comments);
+		const comments = await client.post.findUnique({
+			where: { title: title },
+			select: { comments: true },
+		}).comments;
 
 		return res.json({
 			isAPISuccessful: true,
+			comments,
 		});
 	}
 
@@ -56,9 +45,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		}
 
 		const post = await client.post.findUnique({
-			where: {
-				title: title,
-			},
+			where: { title },
+			select: { id: true },
 		});
 
 		if (!post) {
@@ -67,25 +55,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			});
 		}
 
-		const comment = client.comment.create({
+		const newComment = await client.comment.create({
 			data: {
-				user: {
-					connect: {
-						id: user?.id,
-					},
-				},
-				Post: {
-					connect: {
-						id: post.id,
-					},
-				},
 				content,
+				author: { connect: { id: user.id } },
+				post: { connect: { id: post.id } },
 			},
 		});
 
+		console.log(newComment);
+
 		res.json({
 			success: true,
-			comment,
+			newComment,
 		});
 	}
 }

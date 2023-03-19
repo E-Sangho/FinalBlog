@@ -61,31 +61,35 @@ export default function ReadPost() {
 		<Layout>
 			<div className="relative">
 				<div className="w-full h-96 opacity-60 bg-black absolute"></div>
-				<div className="w-full overflow-hidden h-96">
-					{data?.post?.titleImage ? (
-						<img
-							src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${data?.post.titleImage}/public`}
-							className="object-fill object-center h-96 mx-auto"
-						/>
-					) : null}
-				</div>
-				<div className="w-full h-96 absolute top-0 flex justify-center items-center text-4xl text-slate-100">
-					{data?.post.title}
-				</div>
-				<div className="w-full h-96 absolute top-0 flex justify-end items-end text-xl text-slate-100 px-8 py-8">
-					<ul>
-						{data?.post.tags.map((tag) => (
-							<li>{tag.tag}</li>
-						))}
-					</ul>
-					<div>{data?.post.category[0].category}</div>
-					<div>{data?.post.updatedAt.toString()}</div>
-				</div>
-			</div>
-			<div className="mx-16 my-32">
-				<MarkdownRenderer
-					text={data?.post.contents ? data?.post.contents : ""}
-				/>
+				{data?.post ? (
+					<>
+						<div className="w-full overflow-hidden h-96">
+							{data?.post?.titleImage ? (
+								<img
+									src={`https://imagedelivery.net/eEBHudfAwjXH9a3QdqJsMA/${data?.post.titleImage}/public`}
+									className="object-fill object-center h-96 mx-auto"
+								/>
+							) : null}
+						</div>
+						<div className="w-full h-96 absolute top-0 flex justify-center items-center text-4xl text-slate-100">
+							{data?.post.title}
+						</div>
+						<div className="w-full h-96 absolute top-0 flex justify-end items-end text-xl text-slate-100 px-8 py-8">
+							<ul>
+								{data?.post.tags.map((tag) => (
+									<li>{tag.name}</li>
+								))}
+							</ul>
+							<div>{data?.post.category[0].name}</div>
+							<div>{data?.post.updatedAt.toString()}</div>
+						</div>
+						<div className="mx-16 my-32">
+							<MarkdownRenderer
+								text={data?.post.content ? data?.post.content : ""}
+							/>
+						</div>
+					</>
+				) : null}
 			</div>
 			<form
 				onSubmit={handleSubmit(onValid)}
