@@ -12,7 +12,7 @@ import { useEffect } from "react";
 
 interface PostWithUser extends Post {
 	user: User;
-	category: Category[];
+	categories: Category[];
 	tags: Tag[];
 }
 
@@ -42,13 +42,12 @@ export default function ReadPost() {
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
 	const user = useUser({ toLoginPage: false });
-	const [enter, { loading, data: commentData, error }] =
-		useMutation("/api/comments");
-	const { comments, isLoading } = useComments(`${router.query.title}`);
+	const [enter, { loading, data: commentData, error }] = useMutation(
+		`/api/comments/${router.query.title}`
+	);
+	const { comments, isLoading, mutate } = useComments(`${router.query.title}`);
 	const { register, handleSubmit } = useForm<CommentData>();
 	const onValid = (data: CommentData) => {
-		console.log(data);
-		return;
 		if (loading) return;
 		enter(data);
 	};
@@ -77,10 +76,10 @@ export default function ReadPost() {
 						<div className="w-full h-96 absolute top-0 flex justify-end items-end text-xl text-slate-100 px-8 py-8">
 							<ul>
 								{data?.post.tags.map((tag) => (
-									<li>{tag.name}</li>
+									<li key={tag.name}>{tag.name}</li>
 								))}
 							</ul>
-							<div>{data?.post.category[0].name}</div>
+							<div>{data?.post.categories[0].name}</div>
 							<div>{data?.post.updatedAt.toString()}</div>
 						</div>
 						<div className="mx-16 my-32">

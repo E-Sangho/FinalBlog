@@ -20,7 +20,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 						avatar: true,
 					},
 				},
-				category: true,
+				categories: true,
 				tags: true,
 			},
 		});

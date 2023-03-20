@@ -48,7 +48,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		});
 
 		const tagPromises = tagList.map((tagName) => {
-			return client.category.upsert({
+			return client.tag.upsert({
 				where: {
 					name: tagName,
 				},
@@ -64,7 +64,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 		const newPost = await client.post.create({
 			data: {
-				title: "Test Title",
+				title: title.replace(" ", "_"),
+				content: content,
+				titleImage: titleImage ? titleImage : "",
+				draft: draft,
+				author: {
+					connect: {
+						id: user?.id,
+					},
+				},
 				categories: {
 					connect: newCategories.map((category) => ({ id: category.id })),
 				},
@@ -74,44 +82,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			},
 		});
 
-		// const tag = tags
-		// 	.split(",")
-		// 	.map((e: string) => e.trim())
-		// 	.map((e: string) => {
-		// 		let tag = {
-		// 			tag: e,
-		// 		};
-		// 		return tag;
-		// 	});
-
-		// const post = await client.post.create({
-		// 	data: {
-		// 		title: title.replaceAll(" ", "_"),
-		// 		categories: {
-		// 			create: [{ categories: category }],
-		// 		},
-		// 		draft,
-		// 		tags: {
-		// 			create: tag,
-		// 		},
-		// 		titleImage: titleImage ? titleImage : "",
-		// 		contents,
-		// 		author: {
-		// 			connect: {
-		// 				id: user?.id,
-		// 			},
-		// 		},
-		// 	},
-		// });
-
-		if (!post) {
+		if (!newPost) {
 			res.json({
 				success: false,
 			});
 		}
 		res.json({
 			success: true,
-			post,
+			post: newPost,
 		});
 	}
 }

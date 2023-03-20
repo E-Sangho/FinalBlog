@@ -12,39 +12,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 		});
 	}
 
-	if (req.method === "POST") {
-		const {
-			session: { user },
-			body: { comment: content },
-		} = req;
-
-		if (!user) {
-			return res.json({
-				success: false,
-			});
-		}
-
-		const comment = client.comment.create({
-			data: {
-				user: {
-					connect: {
-						id: user?.id,
-					},
-				},
-				content,
+	if (req.method === "DELETE") {
+		const comment = await client.comment.delete({
+			where: {
+				id: req.body,
 			},
 		});
 
-		res.json({
-			success: true,
-			comment,
+		return res.json({
+			isAPISuccessful: true,
 		});
 	}
 }
 
 export default withApiSession(
 	withHandler({
-		methods: ["GET", "POST"],
+		methods: ["GET", "DELETE"],
 		handler: handler,
 		isPrivate: false,
 	})

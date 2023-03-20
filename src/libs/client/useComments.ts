@@ -2,7 +2,7 @@ import { Comment, Post, User } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 
-interface PostResponse {
+export interface PostResponse {
 	isAPISuccessful: boolean;
 	comments: Comment[];
 }

@@ -25,8 +25,8 @@ export default function Posts() {
 									postImage={`${imageURL(post.titleImage)}`}
 									numberOfVisits={post.view}
 									numberOfComments={0}
-									summary={`${post.contents.substring(0, 100)}...`}
-									date={post.contents.toString()}
+									summary={`${post.content.substring(0, 100)}...`}
+									date={post.content.toString()}
 									category="java"
 									tags={["Java", "Backend", "CS"]}
 									key={post.title}

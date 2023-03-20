@@ -14,10 +14,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			});
 		}
 
-		const comments = await client.post.findUnique({
+		const post = await client.post.findUnique({
 			where: { title: title },
-			select: { comments: true },
-		}).comments;
+			include: { comments: true },
+		});
+
+		const comments = post?.comments;
+
+		if (!comments) {
+			return res.json({
+				isAPISuccessful: false,
+			});
+		}
 
 		return res.json({
 			isAPISuccessful: true,
@@ -62,8 +70,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				post: { connect: { id: post.id } },
 			},
 		});
-
-		console.log(newComment);
 
 		res.json({
 			success: true,
