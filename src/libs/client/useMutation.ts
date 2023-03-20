@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 interface UseMutationOptions<T> {
-	onSuccess?: (data: T) => void;
+	onSuccess?: () => void;
 }
 
 interface UseMutationState<T> {
@@ -32,7 +32,7 @@ export default function useMutation<T = any>(
 			.then((data) => {
 				setData(data);
 				if (options.onSuccess) {
-					options.onSuccess(data);
+					options.onSuccess();
 				}
 			})
 			.catch((error) => setError(error))

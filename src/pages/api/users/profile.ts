@@ -12,6 +12,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				username: true,
 				email: true,
 				avatar: true,
+				id: true,
 			},
 		});
 		if (profile) {

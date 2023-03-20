@@ -16,7 +16,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 		const post = await client.post.findUnique({
 			where: { title: title },
-			include: { comments: true },
+			include: {
+				comments: {
+					include: {
+						author: true,
+					},
+				},
+			},
 		});
 
 		const comments = post?.comments;

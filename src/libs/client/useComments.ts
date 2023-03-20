@@ -2,9 +2,13 @@ import { Comment, Post, User } from "@prisma/client";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 
+interface CommentWithUser extends Comment {
+	author: User;
+}
+
 export interface PostResponse {
 	isAPISuccessful: boolean;
-	comments: Comment[];
+	comments: CommentWithUser[];
 }
 
 export default function useComments(title: string) {

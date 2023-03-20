@@ -23,7 +23,7 @@ interface PostResponse {
 }
 
 interface CommentWithUser extends Comment {
-	user: User;
+	author: User;
 	comment: Comment;
 }
 
@@ -152,9 +152,12 @@ export default function ReadPost() {
 						{comments ? (
 							comments.map((comment, index) => (
 								<CommentComponent
-									isReversed={false}
+									isReversed={
+										user?.user ? user?.user.id === comment.authorId : false
+									}
 									comment={comment}
 									key={index}
+									user={user?.user ? { id: user?.user?.id } : null}
 								/>
 							))
 						) : (

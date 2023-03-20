@@ -5,7 +5,11 @@ import { withApiSession } from "@/libs/server/withSession";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
-		const comments = await client.comment.findMany({});
+		const comments = await client.comment.findMany({
+			include: {
+				author: true,
+			},
+		});
 		return res.json({
 			success: true,
 			comments,
@@ -23,11 +27,28 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			isAPISuccessful: true,
 		});
 	}
+
+	if (req.method === "PUT") {
+		const { id, content } = req.body;
+		const comment = await client.comment.update({
+			where: {
+				id,
+			},
+			data: {
+				content,
+			},
+		});
+
+		return res.json({
+			isAPISuccessful: true,
+			comment,
+		});
+	}
 }
 
 export default withApiSession(
 	withHandler({
-		methods: ["GET", "DELETE"],
+		methods: ["GET", "DELETE", "PUT"],
 		handler: handler,
 		isPrivate: false,
 	})
