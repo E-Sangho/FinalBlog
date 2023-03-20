@@ -43,7 +43,12 @@ export default function ReadPost() {
 	);
 	const user = useUser({ toLoginPage: false });
 	const [enter, { loading, data: commentData, error }] = useMutation(
-		`/api/comments/${router.query.title}`
+		`/api/comments/${router.query.title}`,
+		{
+			onSuccess: () => {
+				mutate();
+			},
+		}
 	);
 	const { comments, isLoading, mutate } = useComments(`${router.query.title}`);
 	const { register, handleSubmit } = useForm<CommentData>();
@@ -132,7 +137,7 @@ export default function ReadPost() {
 						{user?.user ? (
 							<div className="flex flex-row-reverse pr-3">
 								<button className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50">
-									등록
+									{loading ? "등록중" : "등록"}
 								</button>
 							</div>
 						) : null}

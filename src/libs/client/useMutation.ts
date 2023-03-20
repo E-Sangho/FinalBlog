@@ -1,5 +1,9 @@
 import { useState } from "react";
 
+interface UseMutationOptions<T> {
+	onSuccess?: (data: T) => void;
+}
+
 interface UseMutationState<T> {
 	loading: boolean;
 	data?: T;
@@ -9,7 +13,8 @@ interface UseMutationState<T> {
 type UseMutationResult<T> = [(data: any) => void, UseMutationState<T>];
 
 export default function useMutation<T = any>(
-	url: string
+	url: string,
+	options: UseMutationOptions<T> = {}
 ): UseMutationResult<T> {
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState<undefined | any>(undefined);
@@ -24,7 +29,12 @@ export default function useMutation<T = any>(
 			body: JSON.stringify(data),
 		})
 			.then((response) => response.json())
-			.then((data) => setData(data))
+			.then((data) => {
+				setData(data);
+				if (options.onSuccess) {
+					options.onSuccess(data);
+				}
+			})
 			.catch((error) => setError(error))
 			.finally(() => setLoading(false));
 	}
