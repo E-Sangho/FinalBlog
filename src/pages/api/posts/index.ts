@@ -18,7 +18,35 @@ interface IRequest {
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
-		const posts = await client.post.findMany({});
+		const {
+			session: { user },
+		}: IRequest = req;
+
+		let isAdmin = false;
+
+		if (user) {
+			const userData = await client.user.findUnique({
+				where: {
+					id: user?.id,
+				},
+			});
+
+			if (userData?.isAdmin === true) {
+				isAdmin = true;
+			}
+		}
+
+		let posts;
+
+		if (isAdmin) {
+			posts = await client.post.findMany({});
+		} else {
+			posts = await client.post.findMany({
+				where: {
+					draft: true,
+				},
+			});
+		}
 
 		return res.json({
 			isAPISuccessful: true,
@@ -67,7 +95,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				title: title.replace(" ", "_"),
 				content: content,
 				titleImage: titleImage ? titleImage : "",
-				draft: draft,
+				draft: !draft,
 				author: {
 					connect: {
 						id: user?.id,

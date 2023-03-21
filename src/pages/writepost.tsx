@@ -123,7 +123,6 @@ export default function writePost() {
 			const {
 				result: { id },
 			} = await response.json();
-			console.log({ ...data, titleImage: id });
 			writePost({ ...data, titleImage: id });
 		} else {
 			writePost({ ...data, titleImage: "" });

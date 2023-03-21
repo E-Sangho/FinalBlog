@@ -8,8 +8,6 @@ import { imageURL } from "@/util/imageURL";
 
 export default function Posts() {
 	const { posts, isLoading } = usePosts();
-	console.log(posts);
-	console.log(isLoading);
 	return (
 		<Layout>
 			<div className="max-w-5xl grid grid-cols-3 px-8 py-8 mx-auto gap-8">
