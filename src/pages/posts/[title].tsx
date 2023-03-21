@@ -8,7 +8,8 @@ import { Category, Comment, Post, Tag, User } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import useMutation from "@/libs/client/useMutation";
 import useComments from "@/libs/client/useComments";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { concatClassName } from "@/libs/client/concatClassName";
 
 interface PostWithUser extends Post {
 	user: User;
@@ -17,7 +18,7 @@ interface PostWithUser extends Post {
 }
 
 interface PostResponse {
-	success: boolean;
+	isAPISuccessful: boolean;
 	post: PostWithUser;
 	isLiked: boolean;
 }
@@ -38,29 +39,74 @@ interface CommentData {
 
 export default function ReadPost() {
 	const router = useRouter();
-	const { data } = useSWR<PostResponse>(
+	const { data, mutate: postMutate } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
+	const [isEditing, setIsEditing] = useState(false);
+	const [updatedContent, setUpdatedContent] = useState(data?.post.content);
 	const user = useUser({ toLoginPage: false });
+	const { comments, isLoading, mutate } = useComments(`${router.query.title}`);
 	const [enter, { loading, data: commentData, error }] = useMutation(
 		`/api/comments/${router.query.title}`,
-		{
-			onSuccess: () => {
-				mutate();
-			},
-		}
+		{}
 	);
-	const { comments, isLoading, mutate } = useComments(`${router.query.title}`);
 	const { register, handleSubmit } = useForm<CommentData>();
 	const onValid = (data: CommentData) => {
 		if (loading) return;
 		enter(data);
 	};
+
 	useEffect(() => {
 		if (!router.query.title) {
 			return;
 		}
 	}, [router.query.title]);
+
+	const handleEdit = () => {
+		setIsEditing(true);
+	};
+
+	const handleEditCancel = () => {
+		setIsEditing(false);
+		setUpdatedContent(data?.post.content);
+	};
+
+	const handleEditSave = async () => {
+		try {
+			const response = await fetch(`/api/posts/${data?.post.title}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					content: updatedContent,
+				}),
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					console.log(data);
+					if (data.success) {
+						setIsEditing(false);
+						postMutate();
+					}
+				})
+				.finally(() => {});
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const [toggleFavorite] = useMutation(
+		`/api/posts/${router.query.title}/favorite`,
+		{}
+	);
+
+	const onFavoriteClick = () => {
+		if (!data) return;
+
+		toggleFavorite({});
+		postMutate({ ...data, isLiked: !data.isLiked }, false);
+	};
 	return (
 		<Layout>
 			<div className="relative">
@@ -86,11 +132,85 @@ export default function ReadPost() {
 							</ul>
 							<div>{data?.post.categories[0].name}</div>
 							<div>{data?.post.updatedAt.toString()}</div>
+							<button
+								onClick={onFavoriteClick}
+								className={concatClassName(
+									"p-3 rounded-md flex items-center hover:bg-gray-100 justify-center ",
+									data.isLiked
+										? "text-red-500  hover:text-red-600"
+										: "text-gray-400  hover:text-gray-500"
+								)}
+							>
+								{data.isLiked ? (
+									<svg
+										className="w-6 h-6"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											fillRule="evenodd"
+											d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+											clipRule="evenodd"
+										></path>
+									</svg>
+								) : (
+									<svg
+										className="h-6 w-6 "
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										stroke="currentColor"
+										aria-hidden="true"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth="2"
+											d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+										/>
+									</svg>
+								)}
+							</button>
+							{user?.user && user?.user?.id === data.post.authorId ? (
+								isEditing ? null : (
+									<button
+										className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50 mr-2"
+										onClick={handleEdit}
+									>
+										수정
+									</button>
+								)
+							) : null}
+							{isEditing ? (
+								<div className="flex justify-end mt-4">
+									<button
+										className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50 mr-2"
+										onClick={handleEditCancel}
+									>
+										취소
+									</button>
+									<button
+										className="px-4 py-1 bg-gray-300 rounded-2xl text-gray-50"
+										onClick={handleEditSave}
+									>
+										저장
+									</button>
+								</div>
+							) : null}
 						</div>
 						<div className="mx-16 my-32">
-							<MarkdownRenderer
-								text={data?.post.content ? data?.post.content : ""}
-							/>
+							{isEditing ? (
+								<textarea
+									value={updatedContent}
+									onChange={(event) => setUpdatedContent(event.target.value)}
+									className="w-full h-full rounded-md px-4 py-4 focus:outline-green-500"
+								/>
+							) : (
+								<MarkdownRenderer
+									text={data?.post.content ? data?.post.content : ""}
+								/>
+							)}
 						</div>
 					</>
 				) : null}

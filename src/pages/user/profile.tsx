@@ -1,8 +1,10 @@
 import Layout from "@/components/layout";
+import LikeList from "@/components/LikeList";
 import useUser from "@/libs/client/useUser";
 import Link from "next/link";
 export default function Profile() {
 	const { user } = useUser({ toLoginPage: true });
+
 	return (
 		<Layout>
 			<div className="px-4 py-4">
@@ -107,6 +109,7 @@ export default function Profile() {
 						<div>작성한 댓글 수: 0</div>
 					</div>
 				</div>
+				<LikeList />
 			</div>
 		</Layout>
 	);

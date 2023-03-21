@@ -1,6 +1,4 @@
-import { Post, User } from "@prisma/client";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { Post } from "@prisma/client";
 import useSWR from "swr";
 
 interface PostResponse {
@@ -8,8 +6,9 @@ interface PostResponse {
 	posts: Post[];
 }
 
-export default function usePosts() {
-	const { data, error, mutate } = useSWR<PostResponse>("/api/posts", {
+export default function usePosts(title?: string) {
+	const url = title ? `/api/posts/${title}` : "/api/posts";
+	const { data, error, mutate } = useSWR<PostResponse>(url, {
 		shouldRetryOnError: false,
 	});
 
