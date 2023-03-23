@@ -10,9 +10,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			session: { user },
 		} = req;
 		if (typeof title === "string") {
-			const post = await client.post.findUnique({
+			const post = await client.post.update({
 				where: {
 					title,
+				},
+				data: {
+					view: {
+						increment: 1,
+					},
 				},
 				include: {
 					author: {

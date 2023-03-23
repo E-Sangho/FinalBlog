@@ -20,5 +20,5 @@ export default function useComments(title: string) {
 		}
 	);
 
-	return { comments: data?.comments, isLoading: !data && !error, mutate };
+	return { data: data, isLoading: !data && !error, mutate };
 }

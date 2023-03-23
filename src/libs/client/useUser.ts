@@ -3,9 +3,14 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import useSWR from "swr";
 
+interface UserWithCount extends User {
+	postCount: number;
+	favoriteCount: number;
+	commentCount: number;
+}
 interface ProfileResponse {
 	isAPISuccessful: boolean;
-	profile: User;
+	profile: UserWithCount;
 }
 
 interface IUserUser {

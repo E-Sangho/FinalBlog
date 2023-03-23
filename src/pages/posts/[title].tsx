@@ -37,23 +37,39 @@ interface CommentData {
 	comment: string;
 }
 
+interface CommentWithUser extends Comment {
+	author: User;
+}
+
+export interface CommentPostResponse {
+	isAPISuccessful: boolean;
+	comments: CommentWithUser[];
+}
+
 export default function ReadPost() {
 	const router = useRouter();
 	const { data, mutate: postMutate } = useSWR<PostResponse>(
 		router.query.title ? `/api/posts/${router.query.title}` : null
 	);
+	const { data: commentSWRData, mutate: mutateComment } =
+		useSWR<CommentPostResponse>(
+			router.query.title ? `/api/comments/${router.query.title}` : null
+		);
 	const [isEditing, setIsEditing] = useState(false);
 	const [updatedContent, setUpdatedContent] = useState(data?.post.content);
 	const user = useUser({ toLoginPage: false });
-	const { comments, isLoading, mutate } = useComments(`${router.query.title}`);
+	// const { data: commentSWRData, isLoading, mutate: mutateComment } = useComments(`${router.query.title}`);
 	const [enter, { loading, data: commentData, error }] = useMutation(
 		`/api/comments/${router.query.title}`,
-		{}
+		{
+			onSuccess: mutateComment,
+		}
 	);
-	const { register, handleSubmit } = useForm<CommentData>();
+	const { register, handleSubmit, reset } = useForm<CommentData>();
 	const onValid = (data: CommentData) => {
 		if (loading) return;
 		enter(data);
+		reset();
 	};
 
 	useEffect(() => {
@@ -265,12 +281,12 @@ export default function ReadPost() {
 				</div>
 			</form>
 			<div className="mx-16">
-				{isLoading ? (
+				{!commentSWRData ? (
 					<div>Loading comments now...</div>
 				) : (
 					<>
-						{comments ? (
-							comments.map((comment, index) => (
+						{commentSWRData ? (
+							commentSWRData.comments.map((comment, index) => (
 								<CommentComponent
 									isReversed={
 										user?.user ? user?.user.id === comment.authorId : false

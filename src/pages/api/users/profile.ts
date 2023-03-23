@@ -2,12 +2,21 @@ import { NextApiRequest, NextApiResponse } from "next";
 import client from "@/libs/server/client";
 import { withApiSession } from "@/libs/server/withSession";
 import withHandler from "@/libs/server/withHandler";
-import { hashPassword } from "@/libs/server/bcrypt";
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
+		const {
+			session: { user },
+		} = req;
+
+		if (!user) {
+			return res.status(404).json({
+				error: "You are not loggedin",
+			});
+		}
+
 		const profile = await client.user.findUnique({
-			where: { id: req.session.user?.id },
+			where: { id: user?.id },
 			select: {
 				username: true,
 				email: true,
@@ -15,10 +24,29 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 				id: true,
 			},
 		});
+
 		if (profile) {
+			const postCount = await client.post.count({
+				where: {
+					authorId: user.id,
+				},
+			});
+
+			const favoriteCount = await client.favorite.count({
+				where: {
+					userId: user.id,
+				},
+			});
+
+			const commentCount = await client.comment.count({
+				where: {
+					authorId: user.id,
+				},
+			});
+
 			res.json({
 				isAPISuccessful: true,
-				profile,
+				profile: { ...profile, postCount, favoriteCount, commentCount },
 			});
 		} else {
 			res.json({
@@ -33,8 +61,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			session: { user },
 			body: { username, email, avatar },
 		} = req;
-		console.log("here???");
-		console.log(avatar);
 		// // check password
 		// if (password !== checkPassword) {
 		// 	return res.status(400).json({ error: "Passwords are different." });
