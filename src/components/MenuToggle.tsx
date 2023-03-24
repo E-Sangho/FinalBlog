@@ -5,7 +5,7 @@ const Path = (props: any) => (
 		fill="transparent"
 		strokeWidth="3"
 		strokeLinecap="round"
-		className="stroke-orange-500"
+		stroke="#f97316"
 		{...props}
 	/>
 );

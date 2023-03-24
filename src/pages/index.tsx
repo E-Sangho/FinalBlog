@@ -1,7 +1,8 @@
 import Layout from "@/components/layout";
 import { Post } from "@prisma/client";
-import useSWR from "swr";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import useSWR from "swr";
 
 interface IPostsResponse {
 	success: boolean;
@@ -9,10 +10,11 @@ interface IPostsResponse {
 }
 
 export default function Home() {
-	// const { data } = useSWR<IPostsResponse>("api/posts");
+	const { data } = useSWR<IPostsResponse>("api/posts");
+	console.log(data);
 	return (
 		<Layout>
-			<div>
+			<div className="w-full min-h-screen relative">
 				<Image
 					src="/giphy.gif"
 					alt="heroGif"
@@ -20,6 +22,29 @@ export default function Home() {
 					height={900}
 					className="-z-10 absolute top-0 left-0 w-full h-full"
 				></Image>
+				<div className="opacity-20 bg-gray-700 z-10 w-full min-h-screen"></div>
+				<motion.div
+					initial={{ translateX: "-50%" }}
+					animate={{ y: [0, 30, 0] }}
+					className="absolute left-1/2 top-3/4"
+					transition={{ repeat: Infinity, duration: 2 }}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth="1.5"
+						className="w-10 h-10 stroke-white"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							stroke="f97316"
+							d="M19.5 5.25l-7.5 7.5-7.5-7.5m15 6l-7.5 7.5-7.5-7.5"
+						/>
+					</svg>
+				</motion.div>
+				<div></div>
 			</div>
 		</Layout>
 	);
