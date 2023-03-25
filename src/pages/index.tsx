@@ -20,7 +20,7 @@ export default function Home() {
 					alt="heroGif"
 					width={1600}
 					height={900}
-					className="-z-10 absolute top-0 left-0 w-full h-full"
+					className="-z-10 absolute top-0 left-0 w-full min-h-screen"
 				></Image>
 				<div className="opacity-20 bg-gray-700 z-10 w-full min-h-screen"></div>
 				<motion.div
@@ -44,7 +44,10 @@ export default function Home() {
 						/>
 					</svg>
 				</motion.div>
-				<div></div>
+				<div className="font-mabinogi text-center w-full h-16">
+					제 블로그에 오신 것을 진심으로 환영합니다!
+					{data?.posts[0].view}
+				</div>
 			</div>
 		</Layout>
 	);
