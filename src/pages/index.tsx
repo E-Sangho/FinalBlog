@@ -3,6 +3,7 @@ import { Post } from "@prisma/client";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import useSWR from "swr";
+import axios from "axios";
 
 interface IPostsResponse {
 	success: boolean;
@@ -51,4 +52,14 @@ export default function Home() {
 			</div>
 		</Layout>
 	);
+}
+
+export async function getServerSideProps() {
+	try {
+		await axios.post("/api/recordVisit");
+	} catch (error) {
+		console.error("Error recording visit:", (error as Error).message);
+	}
+
+	return { props: {} };
 }

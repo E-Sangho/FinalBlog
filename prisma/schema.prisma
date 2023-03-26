@@ -76,3 +76,9 @@ model Favorite {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
 }
+
+model Visit {
+  id        Int      @id @default(autoincrement())
+  ipAddress String?
+  visitedAt DateTime @default(now())
+}
