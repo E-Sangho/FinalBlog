@@ -12,6 +12,7 @@ interface IPostsResponse {
 
 export default function Home() {
 	const { data } = useSWR<IPostsResponse>("api/posts");
+	// const { data: visitorData } = useSWR<>("api/visit");
 	console.log(data);
 	return (
 		<Layout>
@@ -47,19 +48,19 @@ export default function Home() {
 				</motion.div>
 				<div className="font-mabinogi text-center w-full h-16">
 					제 블로그에 오신 것을 진심으로 환영합니다!
-					{data?.posts[0].view}
+					{/* {data?.posts[0].view} */}
 				</div>
 			</div>
 		</Layout>
 	);
 }
 
-export async function getServerSideProps() {
-	try {
-		await axios.post("/api/recordVisit");
-	} catch (error) {
-		console.error("Error recording visit:", (error as Error).message);
-	}
+// export async function getServerSideProps() {
+// 	try {
+// 		await axios.post("/api/recordVisit");
+// 	} catch (error) {
+// 		console.error("Error recording visit:", (error as Error).message);
+// 	}
 
-	return { props: {} };
-}
+// 	return { props: {} };
+// }
