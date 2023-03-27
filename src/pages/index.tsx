@@ -13,6 +13,7 @@ interface IPostsResponse {
 export default function Home() {
 	const { data } = useSWR<IPostsResponse>("api/posts");
 	// const { data: visitorData } = useSWR<>("api/visit");
+	// what??
 	console.log(data);
 	return (
 		<Layout>
