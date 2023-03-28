@@ -11,12 +11,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 			? rawIpAddress[0]
 			: rawIpAddress || null;
 
-		await client.visit.create({
+		const createVisit = await client.visit.create({
 			data: {
 				ipAddress,
 			},
 		});
 
+		console.log("Is this working now?");
+
+		console.log(createVisit);
 		res.status(200).json({ message: "Visit recorded" });
 	} else {
 		res.status(405).json({ message: "Method not allowed" });

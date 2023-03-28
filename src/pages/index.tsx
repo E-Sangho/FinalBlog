@@ -1,20 +1,42 @@
 import Layout from "@/components/layout";
 import { Post } from "@prisma/client";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import useSWR from "swr";
 import axios from "axios";
+import { useEffect } from "react";
 
 interface IPostsResponse {
 	success: boolean;
 	posts: Post[];
 }
 
-export default function Home() {
-	const { data } = useSWR<IPostsResponse>("api/posts");
-	// const { data: visitorData } = useSWR<>("api/visit");
-	// what??
-	console.log(data);
+interface IProps {
+	initialData: {
+		viewCount: number;
+		postCount: number;
+	};
+}
+
+export default function Home({ initialData }: IProps) {
+	const { viewCount, postCount } = initialData;
+	const viewMotionCount = useMotionValue(0);
+	const postMotionCount = useMotionValue(0);
+	const viewChange = useTransform(viewMotionCount, (latest) =>
+		Math.round(latest)
+	);
+	const postChange = useTransform(postMotionCount, (latest) =>
+		Math.round(latest)
+	);
+
+	useEffect(() => {
+		const viewControls = animate(viewMotionCount, viewCount);
+		const postControls = animate(postMotionCount, postCount);
+		console.log(viewChange);
+		viewControls.stop;
+		postControls.stop;
+		return;
+	}, []);
 	return (
 		<Layout>
 			<div className="w-full min-h-screen relative">
@@ -49,19 +71,17 @@ export default function Home() {
 				</motion.div>
 				<div className="font-mabinogi text-center w-full h-16">
 					제 블로그에 오신 것을 진심으로 환영합니다!
-					{/* {data?.posts[0].view} */}
 				</div>
+				<motion.div>{viewChange}</motion.div>
+				<motion.div>{postChange}</motion.div>
 			</div>
 		</Layout>
 	);
 }
 
-// export async function getServerSideProps() {
-// 	try {
-// 		await axios.post("/api/recordVisit");
-// 	} catch (error) {
-// 		console.error("Error recording visit:", (error as Error).message);
-// 	}
+export async function getServerSideProps() {
+	const response = await fetch("http://localhost:3000/api/blogData");
+	const blogData = await response.json();
 
-// 	return { props: {} };
-// }
+	return { props: { initialData: blogData } };
+}

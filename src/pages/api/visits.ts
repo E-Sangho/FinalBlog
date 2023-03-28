@@ -6,11 +6,9 @@ import withHandler from "@/libs/server/withHandler";
 async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method === "GET") {
 		const totalVisits = await client.visit.count();
-		const uniqueVisitors = await client.visit.count({
-			distinct: ["ipAddress"],
-		});
+		const postCount = await client.post.count({});
 
-		res.status(200).json({ totalVisits, uniqueVisitors });
+		res.status(200).json({ totalVisits, postCount });
 	} else {
 		res.status(405).json({ message: "Method not allowed" });
 	}
