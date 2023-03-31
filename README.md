@@ -33,3 +33,6 @@ Client 모델을 업데이트 하려면 아래 명령어 사용
 2023-03-15
 Comment 완성하기
 api 완성하기
+
+2023-03-31
+Framer motion[]
